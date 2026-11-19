@@ -1,0 +1,234 @@
+[
+ {
+  "query": "Make a map of the best coffee shops in Lisbon that I can share with my friends",
+  "should_trigger": true
+ },
+ {
+  "query": "Pin these places on a map: Eiffel Tower, Louvre, Notre-Dame, Sacre-Coeur",
+  "should_trigger": true
+ },
+ {
+  "query": "I'm planning a 5-day trip to Japan, can you make me a trip map with each day in a different color? Tokyo 2 days, Kyoto 2, Osaka 1",
+  "should_trigger": true
+ },
+ {
+  "query": "plot these addresses for me: 10 Downing St London, 1600 Pennsylvania Ave Washington, Elysee Palace Paris",
+  "should_trigger": true
+ },
+ {
+  "query": "Can you put our wedding venue (Chateau de Vaux-le-Vicomte) and the three recommended hotels on a map for the guests? we're sending the save the date next week",
+  "should_trigger": true
+ },
+ {
+  "query": "Show me where all the Michelin star restaurants in Copenhagen are on a map",
+  "should_trigger": true
+ },
+ {
+  "query": "Make a shareable map of my usual running route through Central Park, start at 72nd st and Central Park West, loop the reservoir, with the water fountains marked",
+  "should_trigger": true
+ },
+ {
+  "query": "we are looking at moving to berlin. can u make a map of the neighbourhoods im considering - Kreuzberg, Neukoelln, Prenzlauer Berg, Friedrichshain - so my partner can look at it too",
+  "should_trigger": true
+ },
+ {
+  "query": "Here's my itinerary for the weekend in Prague: Fri Old Town Square, Charles Bridge, Saturday Prague Castle, Petrin tower, Sunday Vysehrad. Draw it on a map with walking directions I can send to my sister",
+  "should_trigger": true
+ },
+ {
+  "query": "Change the map you made earlier to dark mode and add three bars near the hotel",
+  "should_trigger": true
+ },
+ {
+  "query": "make a choropleth of unemployment rate by Berlin district (Bezirk), use the latest numbers you can find",
+  "should_trigger": true
+ },
+ {
+  "query": "Map of US states by population density please, darker = more dense",
+  "should_trigger": true
+ },
+ {
+  "query": "Here is the map I made yesterday https://maps.polygrid.dev/edit/abc123XYZ?key=k9f2 - can you make it dark and rename the title to 'Summer 2026'",
+  "should_trigger": true
+ },
+ {
+  "query": "my cousin has a map at https://maps.polygrid.dev/m/q7Lm2 and I want my own copy where I can add pins",
+  "should_trigger": true
+ },
+ {
+  "query": "How do I embed this map in my Notion page? I made it with you a minute ago, give me the embed code",
+  "should_trigger": true
+ },
+ {
+  "query": "I need an iframe embed for my wedding website for the map of venues we just made",
+  "should_trigger": true
+ },
+ {
+  "query": "Can you export the map we made earlier as GeoJSON? I want to import it into Google My Maps",
+  "should_trigger": true
+ },
+ {
+  "query": "jak se dostat do 10 restaurací v Praze? udělej mi mapu nejlepších pivnic na Vinohradech, kterou můžu poslat kamarádům",
+  "should_trigger": true
+ },
+ {
+  "query": "Erstelle mir bitte eine Karte mit den schönsten Biergärten in München, die ich mit Freunden teilen kann",
+  "should_trigger": true
+ },
+ {
+  "query": "Udělej mapu našeho svatebního místa a hotelů pro hosty: zámek Konopiště, hotel Mlýn Konopiště, Hotel Atlantic Benešov",
+  "should_trigger": true
+ },
+ {
+  "query": "Ich plane eine Radtour entlang der Donau von Passau nach Wien. Kannst du die Etappen mit Übernachtungsorten auf einer Karte darstellen?",
+  "should_trigger": true
+ },
+ {
+  "query": "Show me on a map where all the Tesla superchargers on my road trip from LA to Vegas would be, I want to send the link to my husband",
+  "should_trigger": true
+ },
+ {
+  "query": "map of the venues for our 40 person conference: Hilton Tower Bridge, the Shard rooftop, and The Gherkin. group by day 1 and day 2",
+  "should_trigger": true
+ },
+ {
+  "query": "plot my cycling route: Amsterdam Centraal -> Zaandam -> Edam -> Volendam -> Marken. 60km, mark the cafe stops",
+  "should_trigger": true
+ },
+ {
+  "query": "i have a list of 40 bakeries from my notes (Poilane, Du Pain et des Idees, Le Grenier a Pain...) put them all on a shareable map w/ a filter for vegan ones",
+  "should_trigger": true
+ },
+ {
+  "query": "Put the 6 apartments I viewed in Lyon on a map with price in each popup, I want to compare locations: 12 rue de la Republique, 8 quai Saint-Antoine, 33 cours Vitton, 5 place Bellecour, 21 rue Garibaldi, 14 rue de Marseille",
+  "should_trigger": true
+ },
+ {
+  "query": "Draw a map of France by region coloured by GDP per capita, with the numbers in the popups",
+  "should_trigger": true
+ },
+ {
+  "query": "make a map with just 3 points, Big Ben, Tower of London and Buckingham Palace. tiny, nothing fancy",
+  "should_trigger": true
+ },
+ {
+  "query": "Can you add a pin for the Sagrada Familia to the map we were working on and give me the link again?",
+  "should_trigger": true
+ },
+ {
+  "query": "Convert this JS: items.map(x => x.id) to use a for loop instead",
+  "should_trigger": false
+ },
+ {
+  "query": "in python what's the difference between map() and a list comprehension? which is faster for 1M ints",
+  "should_trigger": false
+ },
+ {
+  "query": "Help me write a product roadmap for Q3, we have 4 teams and about 12 initiatives to prioritise",
+  "should_trigger": false
+ },
+ {
+  "query": "Create a mind map of the main ideas in chapter 4 of Thinking Fast and Slow",
+  "should_trigger": false
+ },
+ {
+  "query": "Generate an XML sitemap for my Next.js website, it has about 200 pages including blog posts",
+  "should_trigger": false
+ },
+ {
+  "query": "add a site map page to my footer linking to all main sections",
+  "should_trigger": false
+ },
+ {
+  "query": "Plot a heatmap of the correlation between these columns in my CSV: age, income, spend, tenure",
+  "should_trigger": false
+ },
+ {
+  "query": "make a bar chart of our quarterly sales by region, here's the data: EMEA 1.2M, APAC 0.9M, NA 2.1M",
+  "should_trigger": false
+ },
+ {
+  "query": "I need to map these CSV columns to our database schema: cust_name -> full_name, cust_email -> email. write the mapping code",
+  "should_trigger": false
+ },
+ {
+  "query": "my webpack source maps aren't loading in Chrome devtools, the .map files return 404",
+  "should_trigger": false
+ },
+ {
+  "query": "Add a Leaflet map component to my React app that shows store locations from my stores.json, with marker clustering",
+  "should_trigger": false
+ },
+ {
+  "query": "integrate Mapbox GL into our Next.js dashboard so users can see their delivery drivers live",
+  "should_trigger": false
+ },
+ {
+  "query": "how do I get from Munich Hauptbahnhof to Neuschwanstein Castle by public transport? just tell me the steps",
+  "should_trigger": false
+ },
+ {
+  "query": "whats the fastest drive from Brno to Vienna and how long will it take",
+  "should_trigger": false
+ },
+ {
+  "query": "What's the capital of Australia?",
+  "should_trigger": false
+ },
+ {
+  "query": "which country has the most time zones and why",
+  "should_trigger": false
+ },
+ {
+  "query": "which rivers form the border between Germany and Poland?",
+  "should_trigger": false
+ },
+ {
+  "query": "Design a level map for my top-down platformer game, 3 rooms, a boss arena and secret passage. describe the layout in ASCII",
+  "should_trigger": false
+ },
+ {
+  "query": "My Kubernetes pod can't read the ConfigMap I mounted at /etc/config, what's wrong?",
+  "should_trigger": false
+ },
+ {
+  "query": "how do I remap caps lock to escape on macOS keyboard",
+  "should_trigger": false
+ },
+ {
+  "query": "Draw an architecture diagram of how our 6 microservices call each other",
+  "should_trigger": false
+ },
+ {
+  "query": "what's the best way to map over a Dict in Swift and keep the keys?",
+  "should_trigger": false
+ },
+ {
+  "query": "explain gerrymandering to me like I'm 12",
+  "should_trigger": false
+ },
+ {
+  "query": "Make a customer journey map for our SaaS onboarding, with touchpoints and emotions at each stage",
+  "should_trigger": false
+ },
+ {
+  "query": "Napiš mi funkci v Pythonu, která převede seznam slovníků na mapu podle klíče 'id'",
+  "should_trigger": false
+ },
+ {
+  "query": "Wie funktioniert die Google Maps API Abrechnung? Ich zahle 200 Euro im Monat und verstehe die Preise nicht",
+  "should_trigger": false
+ },
+ {
+  "query": "explain how GPS works and why it needs 4 satellites",
+  "should_trigger": false
+ },
+ {
+  "query": "Summarise the history of the Silk Road trade routes in 5 bullet points",
+  "should_trigger": false
+ },
+ {
+  "query": "write a bash script that finds all .map files under dist/ and deletes them",
+  "should_trigger": false
+ }
+]
