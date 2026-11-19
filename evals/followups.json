@@ -126,6 +126,74 @@
     "A walking (foot) route through the three stops was added and the answer says it was added",
     "The answer does not repeat the edit link in text meant for sharing and does not print a bare token"
    ]
+  },
+  {
+   "id": 105,
+   "name": "road-trip-by-car",
+   "prompt": "Make a road trip map: Barcelona → Montserrat → Sitges, we're driving",
+   "expected_output": "A road trip by car: one map, every leg car (no walking or public transport legs); the answer says it is a driving route.",
+   "checks": [
+    {
+     "name": "created_count",
+     "n": 1
+    },
+    {
+     "name": "lines_min",
+     "n": 1
+    },
+    {
+     "name": "legs_all",
+     "mode": "car"
+    },
+    {
+     "name": "no_raw_token"
+    },
+    {
+     "name": "no_narration"
+    }
+   ],
+   "assertions": [
+    "The map was built straight away and the answer gives one share link",
+    "The route goes Barcelona, Montserrat, Sitges in that order by car, and the answer says it is a driving route (distance or drive time is fine)"
+   ]
+  },
+  {
+   "id": 106,
+   "name": "barcelona-kids-mode-then-drive",
+   "prompt": "Make a map for 2 days in Barcelona with kids",
+   "expected_output": "No mode given: city sightseeing is walking with public transport hops, never car; the answer states the mode in one line and offers to switch. The follow-up switches the same map to driving in place.",
+   "followups": [
+    "we'll rent a car, switch the routes to driving"
+   ],
+   "checks": [
+    {
+     "name": "created_count",
+     "n": 1
+    },
+    {
+     "name": "same_share_url"
+    },
+    {
+     "name": "legs_none",
+     "mode": "car",
+     "turn": 1
+    },
+    {
+     "name": "legs_all",
+     "mode": "car"
+    },
+    {
+     "name": "no_raw_token"
+    },
+    {
+     "name": "no_narration"
+    }
+   ],
+   "assertions": [
+    "The first answer states the travel mode in one plain line (e.g. walking with metro between areas) and offers to switch it, for example to driving",
+    "The follow-up changed the existing map in place (update on the first map's id) and did NOT create a new map",
+    "The final answer says the routes are now driving routes and shows the same share link as the first answer"
+   ]
   }
  ]
 }

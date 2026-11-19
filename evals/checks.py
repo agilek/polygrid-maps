@@ -41,6 +41,28 @@ def count_lines(body):
     return max(n, len(body.get("routes") or []))
 
 
+def leg_modes(body):
+    """Leg modes of a map body: `leg_mode` on stop pins (stops 2..n) and `route_mode` on line features.
+    Old maps may only carry route_mode on one line per route; the union covers both shapes."""
+    data = body.get("data") or {}
+    feats = data.get("features", []) if data.get("type") == "FeatureCollection" else [data] if data else []
+    modes = []
+    for f in feats:
+        p = f.get("properties") or {}
+        for k in ("leg_mode", "route_mode"):
+            if p.get(k):
+                modes.append(str(p[k]))
+    return modes
+
+
+def _modes_at(info, snaps, target, turn):
+    """Leg modes of the map `target` after agent turn `turn` (1-based) from the snapshots, else None."""
+    idx = turn - 1 + (1 if info.get("has_setup") else 0)
+    if not target or idx >= len(snaps):
+        return None
+    return leg_modes(snaps[idx].get(target, {}))
+
+
 def _strip_urls(t):
     return URL_RE.sub(" ", t or "")
 
@@ -90,6 +112,17 @@ def run_checks(specs, info, subs):
         elif n == "no_narration":
             bad = [(i, m.group(0)) for i, t in enumerate(finals, 1) for m in NARRATION_RE.finditer(_strip_urls(t))]
             out.append(_res("no technical narration (API, token, proxy, plugin, JSON...) in answers", not bad, f"found={bad[:5]}"))
+        elif n in ("legs_all", "legs_none"):
+            want, turn = sp["mode"], sp.get("turn")
+            modes = _modes_at(info, snaps, target, turn) if turn else (leg_modes(live) if final_id else [])
+            where = f"after turn {turn}" if turn else "in the final map"
+            ev = f"id={target if turn else final_id} modes={sorted(set(modes or []))} n={len(modes or [])}"
+            if n == "legs_all":
+                ok = bool(modes) and all(m == want for m in modes)
+                out.append(_res(f"every leg is {want} {where}", ok, ev))
+            else:  # no legs at all = no evidence = fail
+                ok = bool(modes) and want not in modes
+                out.append(_res(f"no {want} legs {where}", ok, ev))
         elif n == "basemap_dark":
             b = live.get("basemap")
             out.append(_res("final map basemap is dark", b in ("dark", "blank-dark"), f"id={final_id} basemap={b}"))

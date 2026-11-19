@@ -79,7 +79,27 @@ Why: multi-day trip on foot, by bike or car; one map, tabs to switch days. Each 
  {"name":"Day 1","mode":"foot","places":["Sagrada Família, Barcelona","Park Güell, Barcelona"]},
  {"name":"Day 2","mode":"foot","places":["Casa Batlló, Barcelona",{"q":"La Boqueria, Barcelona","title":"Lunch at La Boqueria"}]}]}
 ```
-Rules: `name` is required with 2+ routes; `mode` car|bike|foot (default foot); 2-25 places per route, max 6 routes, 50 places in total. `route_view` is `tabs` by default with 2+ routes (one route at a time). Use `"route_view":"together"` to compare alternatives (e.g. 3 bike route options): all routes visible, legend chips toggle them. Top-level `places` or `data` (hotel, sights) are shown with every route. Read `routes` in the response (status routed or straight, distance); a `straight` route needs a plain-words note.
+Rules: `name` is required with 2+ routes; `mode` car|bike|foot|transit (default foot; a place object can carry its own `mode` for the leg arriving at it); 2-25 places per route, max 6 routes, 50 places in total. `route_view` is `tabs` by default with 2+ routes (one route at a time). Use `"route_view":"together"` to compare alternatives (e.g. 3 bike route options): all routes visible, legend chips toggle them. Top-level `places` or `data` (hotel, sights) are shown with every route. Read `routes` in the response (status routed or straight, distance); a `straight` route needs a plain-words note.
+
+## City day with metro hops, or a road trip (mixed modes)
+Why: sightseeing in a city is mostly walking with a metro hop between areas; a road trip between towns is driving. A place's `mode` is the mode of the leg arriving at it; `transit` draws a dashed line with a metro badge and a public transport directions button (no times).
+```
++------------------------------+
+|  (1)--(2) - - 🚇 - - (3)--(4)|
+|  walk        metro     walk  |
+|  3.2 km walk + 1 metro ride  |
++------------------------------+
+```
+```json
+{"title":"Barcelona with kids","routes":[
+ {"name":"Day 1","mode":"foot","places":["Sagrada Família, Barcelona",{"q":"Park Güell, Barcelona","mode":"transit"},{"q":"Gràcia, Barcelona","mode":"foot"}]}]}
+```
+Road trip, everything by car:
+```json
+{"title":"Barcelona, Montserrat, Sitges","routes":[
+ {"name":"Road trip","mode":"car","places":["Barcelona, Spain","Montserrat Monastery, Spain","Sitges, Spain"]}]}
+```
+Rules: pick the mode as in SKILL.md step 3. Never default to car inside a city. The response route has `mode` ("mixed" when legs differ), `legs` and `totals`; say the mode in one line and offer to switch it.
 
 ## Labeled pins
 Why: a handful of places of one kind; names visible without tapping.

@@ -12,6 +12,7 @@ Plain words to the user always: "map", "link", "pins", "style". Never JSON, toke
 | "remove the legend title / reset a setting" | `key=null` removes it |
 | "add a day / another route", "add routes to my map" | `patch ID --token T changes.json` with `{"routes":[ ...only the new routes... ]}`; existing routes and pins stay, same link |
 | "recolor Day 2", "do Day 2 by bike" | `patch` with `{"routes":[{"name":"Day 2","color":"#e11d48"}]}` or `{"name":"Day 2","mode":"bike"}` (no places); `{"name":"Day 2","remove":true}` deletes it |
+| "we'll drive / switch it to car / use the metro instead" | `patch ID --token T changes.json` with one entry per route and no places, e.g. `{"routes":[{"name":"Day 1","mode":"car"},{"name":"Day 2","mode":"car"}]}`; every leg of those routes gets that mode (`transit` too), same link; to mix modes again resend the route with `places` |
 | "show the days together / as tabs" | `set ID --token T route_view=together` (or `tabs`) |
 | add/remove places, new layout, areas | edit saved body, `update ID --token T body.json` |
 | "give me the link" | `links ID` |

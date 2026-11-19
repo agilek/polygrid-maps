@@ -38,6 +38,8 @@ Modes (`run_quality.py --mode`):
 
 Scenarios (ids 101-104): barcelona-add-routes (2-turn; same URL, exactly 1 create, >=2 routed lines, no raw token, no narration), barcelona-make-dark (same URL, basemap dark), barcelona-separate-map-control (negative control: NEW url expected, trip map untouched), pasted-edit-link-add-route (new chat, pasted private edit link + "add a walking route": updated in place). 101 and 104 need multi-route/route-adding support in the API (`routes`, update_map); 102 and 103 do not.
 
+Mode scenarios (ids 105-106, need the transit/per-leg modes API): road-trip-by-car (every leg car), barcelona-kids-mode-then-drive (no mode given: no car legs and the answer states the mode and offers the switch; follow-up switches the same map to car in place). Checks `legs_all` / `legs_none` (`mode`, optional `turn`) read `leg_mode` on stop pins and `route_mode` on lines from GET /v1/maps/{id}. Adds about 2 creates per mode.
+
 `checks.py` grades the real API state (GET /v1/maps/{id}, snapshots after each turn, create counts from tool results) in addition to the LLM grader; those rows are prefixed `[api]` in grading.json.
 
 ```
