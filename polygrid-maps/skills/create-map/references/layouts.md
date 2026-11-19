@@ -25,7 +25,7 @@ Why: different kinds of places, viewers can show only what they want.
 +------------------------------+
 ```
 ```json
-{"title":"Lisbon highlights","image":true,"legend_title":"Type","places":[
+{"title":"Lisbon highlights","legend_title":"Type","places":[
  {"q":"Time Out Market, Lisbon","title":"Time Out Market","description":"Best food hall to sample many dishes","category":"Eat","marker-symbol":"🍴","marker-color":"#dc2626"},
  {"q":"Belem Tower, Lisbon","title":"Belem Tower","description":"Iconic riverside fortress","category":"Sights","marker-symbol":"🏰","marker-color":"#2563eb","url":"https://www.torrebelem.gov.pt/"}]}
 ```
@@ -43,7 +43,7 @@ Why: stops have an order; numbers and a line show the path.
 +------------------------------+
 ```
 ```json
-{"title":"Prague old town walk","image":true,"connect":true,"places":["Prague Castle, Prague","Charles Bridge, Prague","Old Town Square, Prague"]}
+{"title":"Prague old town walk","connect":true,"places":["Prague Castle, Prague","Charles Bridge, Prague","Old Town Square, Prague"]}
 ```
 Use `"route":"foot"` (or car/bike) instead of `connect` to follow roads. Numbers are automatic.
 
@@ -59,7 +59,7 @@ Why: multi-day trip; one color per day, filter by day.
 +------------------------------+
 ```
 ```json
-{"title":"Rome in 3 days","image":true,"legend_title":"Day","places":[
+{"title":"Rome in 3 days","legend_title":"Day","places":[
  {"q":"Colosseum, Rome","category":"Day 1","title":"Colosseum","description":"Book the first slot"},
  {"q":"Vatican Museums, Rome","category":"Day 2","title":"Vatican Museums","description":"Go early to skip queues"}]}
 ```
@@ -76,7 +76,7 @@ Why: a handful of places of one kind; names visible without tapping.
 +------------------------------+
 ```
 ```json
-{"title":"Coffee in Vienna","image":true,"labels":true,"color":"#b45309","places":["Cafe Central, Vienna","Cafe Sperl, Vienna"]}
+{"title":"Coffee in Vienna","labels":true,"color":"#b45309","places":["Cafe Central, Vienna","Cafe Sperl, Vienna"]}
 ```
 
 ## Clustered
@@ -90,7 +90,7 @@ Why: many places of one kind; groups merge into counts when zoomed out.
 +------------------------------+
 ```
 ```json
-{"title":"All our stores","image":true,"cluster":true,"marker":"dot","places":["..."]}
+{"title":"All our stores","cluster":true,"marker":"dot","places":["..."]}
 ```
 Max 50 places via `places`; larger sets need `data` GeoJSON points (no geocoding).
 
@@ -106,7 +106,7 @@ Why: ranked or priced; the top picks stand out.
 +------------------------------+
 ```
 ```json
-{"title":"Where to stay","image":true,"legend_title":"Rating","places":[
+{"title":"Where to stay","legend_title":"Rating","places":[
  {"q":"Hotel X, Porto","category":"Top pick","marker-color":"#16a34a","marker-symbol":"⭐"},
  {"q":"Hotel Y, Porto","category":"OK","marker-color":"#9ca3af","marker-symbol":"🛏"}]}
 ```
@@ -122,7 +122,7 @@ Why: zones, neighborhoods, parks, service areas.
 +------------------------------+
 ```
 ```json
-{"title":"Parks of Prague","image":true,"labels":true,"data":{"type":"FeatureCollection","features":[
+{"title":"Parks of Prague","labels":true,"data":{"type":"FeatureCollection","features":[
  {"type":"Feature","properties":{"title":"Letna Park","fill":"#16a34a","fill-opacity":0.3,"stroke":"#15803d"},
   "geometry":{"type":"Polygon","coordinates":[[[14.410,50.096],[14.432,50.096],[14.432,50.100],[14.410,50.100],[14.410,50.096]]]}}]}}
 ```

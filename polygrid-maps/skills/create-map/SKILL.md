@@ -7,7 +7,7 @@ description: Creates a shareable web map with a live link from places the user n
 
 Turn a plain-language request into a live, shareable map link that can be edited later. The user is usually not technical: never show JSON, field names, tokens, or API words. Talk about places, pins, colors, links.
 
-API: `https://maps.polygrid.dev` (no key needed). Everything goes through `scripts/publish.py`. Field details are in the API docs at `https://maps.polygrid.dev/llms.txt` (fetch if you need a field not listed here); layout recipes are in `references/layouts.md`.
+API: `https://maps.polygrid.dev` (no key needed). Everything goes through `scripts/publish.py` (Python 3, nothing to install). If the `polygrid-maps` MCP tools (`create_map`, `get_map`, `update_map`) are available and Python is not, use those instead; the flow is the same. Field details: `https://maps.polygrid.dev/llms.txt`; layout recipes: `references/layouts.md`; customising and handing the map back: `references/customise.md`; commands and API notes: `references/api-cheatsheet.md`.
 
 ## Flow
 
@@ -18,7 +18,7 @@ Work out the places, the purpose (trip, event, recommendations, moving, run rout
 Before asking anything, size up the data: how many places; one kind or mixed; any order or sequence (itinerary, days, race course); how spread out (one street, a city, a country); geometry (points, routes, areas); shared attributes (type, day, price, rating).
 
 Ask ONE round of questions, layout first:
-- **Layout question (always):** offer the 2-3 layouts from `references/layouts.md` that fit this data, best fit first, each with a one-line reason. In Claude Code use AskUserQuestion with the ASCII mockup from layouts.md in each option's `preview`. In claude.ai use whatever clickable option UI is available; otherwise a short numbered list with the mockups.
+- **Layout question (always):** offer the 2-3 layouts from `references/layouts.md` that fit this data, best fit first, each with a one-line reason. Ask with your clickable-question tool if you have one (AskUserQuestion in Claude Code), putting the ASCII mockup from layouts.md in each option's preview; otherwise use a short numbered list with the mockups.
 - **Up to 2 more questions in the same round**, each with a smart default and a "skip" option: which places (when the user wants suggestions, propose a researched list and ask them to confirm it), travel mode (car / bike / on foot) when there is a route, look (light / streets / dark).
 - If the user has no places yet, research real ones first (web search if available), then ask.
 
@@ -38,9 +38,9 @@ Good-map rules (apply silently, do not lecture):
 
 ### 4. Publish
 ```
-python3 scripts/publish.py body.json
+python3 scripts/publish.py create body.json
 ```
-It prints the API result. Keep from it: `url`, `edit_token`, `edit_url`, `id`, `warnings`, `route`.
+It prints the result. Keep from it (for yourself): `url`, `edit_token`, `edit_url`, `id`, `warnings`, `route`. Also save the body file: it lets you recreate the map later.
 - If it prints a `fallback_url` instead (sandbox cannot reach the API), tell the user: "I can't publish from here, but this link opens your map ready to go. Click it, check it, then press **Publish map**." Show the link prominently. After publishing, that page shows their share link and their private edit link; ask them to paste the edit link back here if they want you to change the map later. Suggest enabling network access for maps.polygrid.dev (Settings > Capabilities > Code execution) to get real share links next time.
 - If it exits with an API error, read its `hint`, fix the body, retry once. If a place could not be found, ask for another spelling or drop it.
 
@@ -50,13 +50,35 @@ In this order:
 2. One line: when they paste the link into WhatsApp, iMessage or Slack, it shows a preview picture of the map.
 3. One-line summary ("14 places in 3 categories, walking route 4.2 km"). Then warnings in plain words ("I couldn't find *Cafe X*, want me to try another spelling?"). If a route fell back to straight lines, say it is not a road route.
 4. The private edit link, labeled: "Your private edit link (keep this, it lets you change the map in the browser or ask me to change it later): EDIT_URL". Keep it separate from the share link and never tell the user to send it to friends.
-5. Three suggested tweaks tailored to this map (e.g. "add restaurants nearby", "make it dark", "draw the walking route"). Say that the map stays online for 30 days after its last view.
+5. Three suggested tweaks tailored to this map (e.g. "add restaurants nearby", "make it dark", "draw the walking route"), plus one line that you can also give it as a website embed, a download for QGIS / Google My Maps, or a picture. Say that the map stays online for 30 days after its last view.
 
-### 6. Modify
-- **Same chat:** keep the last body and the token. Apply the change, then `python3 scripts/publish.py body.json --id ID --token TOKEN`. The share link does not change; re-show the (same) link and say the change is live for everyone who has it.
-- **New chat:** the user pastes the edit link `https://maps.polygrid.dev/m/{id}/edit#t={token}`. Take `id` from the path and `token` after `#t=`. Run `python3 scripts/publish.py --get ID` to load the current map, change it, then PUT as above. If they paste only the share link, there is no token: offer to make a fresh copy (new link).
-- **In the browser:** the edit link opens a simple editor for small changes: map title and description, category names, colors and icons, and each place's text, link, photo, icon and color, or removing a place. The layout, map style, routes and the places themselves stay as they are there, so for adding places or changing the layout they ask you.
-- If the PUT returns 403, the token is wrong or from a different map; ask for the right edit link. If 404, the map expired; offer to recreate it from the saved body.
+### 6. Give the map back, customise
+This is what makes the map useful after step 5. Offer it, do not lecture. Details and recipes: `references/customise.md`.
+
+Quick tweaks in chat (same share link, live for everyone). One command changes a few settings without rebuilding the map:
+```
+python3 scripts/publish.py set ID --token TOKEN basemap=dark labels=true
+```
+Typical asks: "make it dark / streets / light" (`basemap`), "rename it" (`title`, `description`), "show names" (`labels=true`), "cluster the pins" (`cluster=true`), "smaller dots" (`marker=dot`), "different color" (`color=#e11d48`), "legend heading" (`legend_title`). For anything bigger (add or remove places, new routes, new layout) edit the saved body and run `update ID --token TOKEN body.json` (this replaces the whole map; same link).
+
+What people usually need, and what to give them:
+- **A link to share:** the share link (`links ID`). It never contains the edit token.
+- **Just a look in another style:** a view link such as `?basemap=dark` on the share link. Nothing is changed for others. Also `?marker=dot`, `?labels=1`, `?cluster=1`.
+- **Change texts, colors, icons or photos themselves, in the browser:** the private edit link. Explain it opens a simple editor (names, texts, links, photos, colors, icons, removing places). Adding places or changing layout, style or routes is done by you in chat.
+- **Put it on a website, blog or Notion:** give the embed snippet from `links ID` and say where to paste it (a "custom HTML" / "embed" block). In Notion, a plain "/embed" block with the share link works too.
+- **Open it in QGIS, Google My Maps, Mapbox, a spreadsheet:** the download link ending in `.geojson`. Say what to do with it ("in Google My Maps choose Import and upload this file").
+- **A picture (slides, printing, a document):** only when asked, `python3 scripts/publish.py png ID map.png`, then tell them where the file is. Pictures are limited, do it at most once per request and never in a loop.
+- **Open it in the browser** (when you run on their computer and they want it): `open URL` on macOS, `xdg-open URL` on Linux, `start URL` on Windows. Do not do it unasked.
+
+If you are a coding agent working in a project, offer to save the share link or embed snippet into the project (README, docs page, page template). Never save the edit link into files that are committed or published.
+
+### 7. Come back later (new chat, pasted link)
+The user may paste a link and say "change this map". Read the link yourself, never ask them to dissect it.
+- **Edit link** (`.../m/ID/edit#t=TOKEN`): you have everything. Pass the whole link as the ID to the commands (`set "EDIT_URL" basemap=dark` works; the token is picked up from the link). First `get` it to see what is on the map, then change it.
+- **Share link only** (no `#t=`): you can read it (`get`, `links`, view variants, downloads) but not change it. Say so plainly and offer: a fresh copy with the changes (new link; the old one stays as it is), or they can paste the private edit link if they have it. Never guess tokens.
+- **No link, but a saved body** (same project/session): recreate with `create`.
+- **Errors:** 403 means the edit link is for a different map, ask for the right one. 404 means the map expired (30 days without views): offer to recreate it from the saved body, or from `get` output if you still have it, as a new link. Update restarts the 30-day clock.
+- After any change, re-show the same share link and say the change is live. Keep to plain words: "done, the map is dark now".
 
 ## Data maps of areas
 For "map of X by district / region / country" with a number per admin area, use `areas` instead of inventing polygons or hunting for GeoJSON: the API draws the real boundaries from a name, you only supply numbers.
