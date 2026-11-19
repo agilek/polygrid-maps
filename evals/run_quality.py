@@ -79,7 +79,8 @@ def claude_turn(prompt, cwd, model, session=None, timeout=600, mode="skill"):
 def summarize(turns):  # -> text, creates, pngs, info
     """Readable transcript: user prompt, tool calls (Bash commands, searches), assistant text."""
     lines, creates, pngs = [], 0, 0
-    info = {"finals": [], "results": []}  # results: (turn, full tool_result text)
+    info = {"finals": [], "results": []}
+    tool_names = {}  # tool_use id -> tool name; only Bash results can be create responses (WebFetch returns docs examples)  # results: (turn, full tool_result text)
     for i, (prompt, events) in enumerate(turns, 1):
         lines.append(f"=== TURN {i} USER ===\n{prompt}\n")
         for e in events:
@@ -92,6 +93,7 @@ def summarize(turns):  # -> text, creates, pngs, info
                         s = inp.get("command") or inp.get("file_path") or inp.get("query") or inp.get("url") or json.dumps(inp)[:300]
                         if c["name"] == "Write":
                             s += "\n" + str(inp.get("content", ""))[:1500]
+                        tool_names[c["id"]] = c["name"]
                         lines.append(f"[tool {c['name']}] {s}")
                         cmd = inp.get("command", "") or ""
                         if re.search(r"publish\.py\s+(create\b|[^\s-]+\.json)", cmd) or \
@@ -107,7 +109,8 @@ def summarize(turns):  # -> text, creates, pngs, info
                         if c.get("type") == "tool_result":
                             t = c.get("content")
                             t = t if isinstance(t, str) else json.dumps(t)
-                            info["results"].append([i, t])
+                            if tool_names.get(c.get("tool_use_id"), "Bash") == "Bash":
+                                info["results"].append([i, t])
                             lines.append(f"[tool result] {t[:1200]}")
         final = next((e.get("result") for e in reversed(events) if e.get("type") == "result"), "")
         info["finals"].append(final)
@@ -128,7 +131,7 @@ def summarize(turns):  # -> text, creates, pngs, info
 
 def grade(transcript, assertions, model, subs):
     items = "\n".join(f"{i+1}. {a}" for i, a in enumerate(assertions))
-    prompt = f"""You are grading a transcript of an AI assistant that makes shareable maps with the Polygrid Maps service (via a skill or from its docs). For each assertion decide pass/fail from the transcript only (tool calls are listed, the user-visible answer is the FINAL ANSWER sections). Be strict: if the evidence is absent, fail. The user is non-technical, so JSON/curl/tokens in the final answer are failures except where an assertion says otherwise (the private edit URL itself is allowed).
+    prompt = f"""You are grading a transcript of an AI assistant that makes shareable maps with the Polygrid Maps service (via a skill or from its docs). For each assertion decide pass/fail from the transcript only (tool calls are listed, the user-visible answer is the FINAL ANSWER sections). Be strict: if the evidence is absent, fail. The user is non-technical: raw JSON, curl commands, HTTP errors, code-formatted field names and secret token strings in the final answer are failures (the private edit URL itself is allowed). Ordinary plain words are NOT failures: 'map style', 'dark map', 'basemap', 'update', 'change', 'live', 'route' or 'pins' are fine in natural sentences. Do not fail an assertion over wording that merely lacks the exact word 'live' if the answer clearly says the change was made and gives the link.
 Substitutions used in the scenario: {json.dumps(subs)}
 
 ASSERTIONS

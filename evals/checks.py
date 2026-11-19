@@ -52,7 +52,7 @@ def _res(text, ok, ev):
 def run_checks(specs, info, subs):
     finals = info.get("finals", [])
     snaps = info.get("snapshots", [])
-    created = info.get("created_ids", [])
+    created = [i for i in info.get("created_ids", []) if i != "k3f9q2xa7b"]  # k3f9q2xa7b = example id in llms.txt, leaked from WebFetch results in older transcripts
     n_created = max(len(created), info.get("create_calls", 0))
     first_ids = share_ids(finals[0]) if finals else []
     last_ids = share_ids(finals[-1]) if finals else []
