@@ -9,7 +9,7 @@
   publish.py links ID                             share/embed/download/variant links
   publish.py png ID out.png                       download the preview picture
   publish.py version                              installed vs latest skill version (JSON)
-  publish.py update                               update this skill to the latest version (no arguments)
+  publish.py self-update [--force]                update this skill to the latest version
   publish.py --selftest
 
 ID may be a bare id, a share URL (.../m/ID?basemap=dark) or an edit URL
@@ -470,7 +470,8 @@ def main():
         return emit(*call("GET", "/v1/maps/" + parse_ref(argv[1])[0]))
     if argv[:1] == ["--selftest"]:
         return selftest()
-    if argv[:1] == ["update"] and all(a in ("--force",) for a in argv[1:]):  # no ref/body: update the skill itself
+    # self-update: `self-update [--force]`; bare `update` (no map ref/body) is kept as an alias
+    if argv[:1] in (["self-update"], ["update"]) and all(a in ("--force",) for a in argv[1:]):
         return cmd_update_skill("--force" in argv)
 
     ap = argparse.ArgumentParser(description="Polygrid Maps helper")
