@@ -49,14 +49,14 @@ It prints the result. Keep from it (for yourself): `url`, `edit_token`, `edit_ur
 - If it exits with an API error, read its `hint`, fix the body, retry once. If a place could not be found, offer another spelling or address, or to leave it out.
 
 ### 5. Answer visually and briefly
-In this order:
+Keep it short. Use this template, every line on its own line, nothing else:
 0. The thumbnail (`preview_markdown` from the publish output) only where the chat really renders outside images (e.g. ChatGPT, Cursor chat). Do NOT add it in claude.ai, Claude Desktop, Cowork, terminal agents (Claude Code CLI, Codex CLI, Gemini CLI) or with the fallback publish link; when unsure, skip it.
-1. The share link, large and on its own line: `## [Open your map](URL)`. If you have a built-in browser, open the map's share link in it as your very last step of the whole turn, so the chat shows a live preview card of the map. Don't navigate anywhere after it.
-2. One line on the popups, e.g. "Each pin has the address and website; tap Directions to get there" (mention only what you really filled in), then: "Want more detail (hours, photos) for each place? I can add it."
-3. One line: when they paste the link into WhatsApp, iMessage or Slack, it shows a preview picture of the map.
-4. One-line summary ("14 places in 3 categories, walking route 4.2 km"). When the map has routes, always add one plain sentence on the travel mode and offer the switch, e.g. "Walking routes with metro between areas; tell me if you'll drive and I'll switch them to car." (the user stated the mode: just confirm it). Then warnings in plain words ("I couldn't find *Cafe X*, want me to try another spelling?"). If a route fell back to straight lines, say it is not a road route.
-5. The private edit link, labeled: "Your private edit link (keep this, it lets you change the map in the browser or ask me to change it later): EDIT_URL". Keep it separate from the share link and never tell the user to send it to friends.
-6. Three suggested tweaks tailored to this map (e.g. "add restaurants nearby", "make it dark", "draw the walking route"), plus one line that you can also give it as a website embed, a download for QGIS / Google My Maps, or a picture. Say that the map stays online for 30 days after its last view.
+1. `## [Open your map](URL)`
+2. One-line summary: what is on it ("8 sights in Lisbon in 2 categories"). With routes, add the travel mode and offer the switch ("Walking, with metro between areas; tell me if you'll drive"). Then any warnings in plain words.
+3. One line on the popups (only what you really filled in) plus the offer: "Each pin has a short note and the address; want hours and photos too? I can add them."
+4. "Your private edit link (keep it, don't share it): EDIT_URL"
+5. Two tweak ideas in one line ("Make it dark? Add cafés nearby?").
+Embeds, downloads, link previews and the 30-day expiry: mention only when the user asks. If you have a built-in browser, open the map's share link in it as your very last step of the whole turn, so the chat shows a live preview card of the map. Don't navigate anywhere after it.
 
 ### 6. Give the map back, customise
 **When the user asks to change, add to or restyle a map you made in this conversation (add routes, add places, make it dark, rename...), update that map in place with its edit token: same link, no new map. Create a new map only when they ask for a separate or new one.** Multi-day or multi-leg routes go into one map with `routes` (`route_view` tabs), not one map per day. Never show the raw edit token; give the private edit link only.
