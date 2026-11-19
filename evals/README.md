@@ -27,6 +27,25 @@ python3 plugins/evals/run_quality.py --out <same dir> --regrade     # re-grade s
 ```
 Output per scenario: `transcript.txt`, `grading.json` (text / passed / evidence). The grader is an LLM and a little noisy; read the evidence before acting on a fail.
 
+## 3. Follow-up edit evals (`followups.json`, `--mode`, `checks.py`)
+
+Why: in Claude Desktop, "add me routes for barcelona map" (after a Barcelona trip map) created two NEW maps, left the original unchanged and printed raw edit tokens. These scenarios guard "edit in place" behaviour.
+
+Modes (`run_quality.py --mode`):
+- `skill` (default): the create-map skill is copied into the scratch project (as before).
+- `docs-only`: no skill; the agent only gets a one-line hint that the service is https://maps.polygrid.dev and tools Bash + WebFetch, so it must learn the API from /llms.txt or /docs/agents. Mirrors agents without the plugin.
+- `both`: every scenario runs in both modes.
+
+Scenarios (ids 101-104): barcelona-add-routes (2-turn; same URL, exactly 1 create, >=2 routed lines, no raw token, no narration), barcelona-make-dark (same URL, basemap dark), barcelona-separate-map-control (negative control: NEW url expected, trip map untouched), pasted-edit-link-add-route (new chat, pasted private edit link + "add a walking route": updated in place). 101 and 104 need multi-route/route-adding support in the API (`routes`, update_map); 102 and 103 do not.
+
+`checks.py` grades the real API state (GET /v1/maps/{id}, snapshots after each turn, create counts from tool results) in addition to the LLM grader; those rows are prefixed `[api]` in grading.json.
+
+```
+python3 plugins/evals/run_quality.py --out <scratch dir> --file followups.json --mode both [--only 101,102] [--max-creates 25]
+python3 plugins/evals/run_quality.py --out <same dir> --file followups.json --mode both --regrade   # no new maps
+```
+Cost: map creates per mode about 5 (101: 1, 102: 1, 103: 2, 104: 1 setup; +1-2 if the agent wrongly makes extra maps), so a full `--mode both` run is about 10-14 creates, well under 25. No png calls. Output dirs are `eval-<id>-<name>.<mode>/`.
+
 ## Latest scores (2026-11-19, sonnet, skill commit 8147146 on main, MCP disabled in runs: Python path)
 | Suite | Result |
 |---|---|

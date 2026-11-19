@@ -1,0 +1,131 @@
+{
+ "skill_name": "create-map",
+ "setups": {
+  "create_3pin_map": "Run publish.py create for Brandenburg Gate, Reichstag, Checkpoint Charlie; fills {{SHARE_URL}}, {{EDIT_URL}}, {{MAP_ID}}"
+ },
+ "common_assertions": [
+  "The final answer shows no raw JSON blocks, curl commands, HTTP error codes, or API words (endpoint, oEmbed, token, field names). The private edit link URL itself is fine"
+ ],
+ "evals": [
+  {
+   "id": 101,
+   "name": "barcelona-add-routes",
+   "prompt": "Make a map of places to see in Barcelona with kids in 2 days",
+   "expected_output": "Follow-up 'add routes' updates the SAME map in place: one map, one route per day, same link.",
+   "followups": [
+    "add me routes for barcelona map"
+   ],
+   "checks": [
+    {
+     "name": "same_share_url"
+    },
+    {
+     "name": "created_count",
+     "n": 1
+    },
+    {
+     "name": "lines_min",
+     "n": 2
+    },
+    {
+     "name": "no_raw_token"
+    },
+    {
+     "name": "no_narration"
+    }
+   ],
+   "assertions": [
+    "The first answer built the map straight away and gave one share link",
+    "The follow-up changed the existing map in place (update/PUT/update_map on the first map's id) and did NOT create new maps",
+    "The final answer says the existing map now has routes for each day (e.g. Day 1 / Day 2) and shows the same share link",
+    "The final answer does not show a raw edit token (a 22-character secret string) or ask the user to copy one"
+   ]
+  },
+  {
+   "id": 102,
+   "name": "barcelona-make-dark",
+   "prompt": "Pin Sagrada Familia, Park Guell and Casa Batllo in Barcelona on a map for my friends.",
+   "expected_output": "'make it dark' edits the same map in place.",
+   "followups": [
+    "make it dark"
+   ],
+   "checks": [
+    {
+     "name": "same_share_url"
+    },
+    {
+     "name": "created_count",
+     "n": 1
+    },
+    {
+     "name": "basemap_dark"
+    },
+    {
+     "name": "no_raw_token"
+    },
+    {
+     "name": "no_narration"
+    }
+   ],
+   "assertions": [
+    "The follow-up was applied to the same map (update in place), not a second create",
+    "The final answer says the change is live and shows the same share link as the first answer"
+   ]
+  },
+  {
+   "id": 103,
+   "name": "barcelona-separate-map-control",
+   "prompt": "Pin Sagrada Familia, Park Guell and Casa Batllo in Barcelona on a map for my friends.",
+   "expected_output": "Negative control: an explicitly separate map must be a NEW url; the trip map stays untouched.",
+   "followups": [
+    "now make a separate map of good restaurants in Barcelona"
+   ],
+   "checks": [
+    {
+     "name": "new_url_for_followup"
+    },
+    {
+     "name": "original_unchanged"
+    },
+    {
+     "name": "no_raw_token"
+    },
+    {
+     "name": "no_narration"
+    }
+   ],
+   "assertions": [
+    "The second answer gives a different share link than the first answer",
+    "The first map (sights) was not overwritten or changed by the second request",
+    "The second map is about restaurants and the answer says it is a new separate map"
+   ]
+  },
+  {
+   "id": 104,
+   "name": "pasted-edit-link-add-route",
+   "prompt": "{{EDIT_URL}}\nadd a walking route through these stops",
+   "expected_output": "New chat, pasted private edit link: route added in place, same share link.",
+   "setup": "create_3pin_map",
+   "checks": [
+    {
+     "name": "in_place_setup"
+    },
+    {
+     "name": "same_share_url"
+    },
+    {
+     "name": "lines_increased"
+    },
+    {
+     "name": "no_narration"
+    }
+   ],
+   "assertions": [
+    "The agent read the pasted link itself and did not ask the user for an id or token",
+    "The map was updated in place (no new map) and the final answer shows the share link {{SHARE_URL}}",
+    "A walking (foot) route through the three stops was added and the answer says it is live",
+    "The answer does not repeat the edit link in text meant for sharing and does not print a bare token"
+   ]
+  }
+ ]
+}
