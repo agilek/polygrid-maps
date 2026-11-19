@@ -4,7 +4,7 @@
   "create_3pin_map": "Run `publish.py create` for a map of Brandenburg Gate, Reichstag and Checkpoint Charlie in Berlin; fills {{SHARE_URL}}, {{EDIT_URL}}, {{MAP_ID}}"
  },
  "common_assertions": [
-  "The final answer shows no raw JSON blocks, curl commands, HTTP error codes, or API words (endpoint, oEmbed, token, field names). Plain file-format and product names (GeoJSON, QGIS, Google My Maps) are fine"
+  "The final answer shows no raw JSON blocks, curl commands, HTTP error codes, or API words (endpoint, oEmbed, token). Code-formatted values the user must copy or edit are fine: the private edit link (including its #t= part), an iframe snippet and its width/height/src attributes, and menu or field names the user must click or choose in another product (e.g. Google My Maps 'Choose `title`'). Plain file-format and product names (GeoJSON, QGIS, Google My Maps) are fine"
  ],
  "evals": [
   {
@@ -43,9 +43,9 @@
    "assertions": [
     "The map body uses `areas` with within=Berlin (real boundaries) rather than hand-drawn polygons or externally sourced GeoJSON",
     "Per-district numbers were supplied (areas.values or equivalent) and are sourced from real data, with the source named to the user",
-    "title and legend_title include the unit (e.g. %)",
+    "legend_title includes the unit (e.g. 'Unemployment (%)'); the map title need not",
     "The agent did not invent values silently: if numbers were estimated or approximate, it says so",
-    "A share link is shown on its own line and the answer reports any warnings (e.g. unmatched district names) in plain words",
+    "A share link is shown on its own line; any warnings returned by the create call (e.g. unmatched district names) are reported in plain words",
     "A diverging or sequential palette suited to the data was chosen (no random qualitative colors)"
    ]
   },
@@ -72,7 +72,7 @@
    "expected_output": "Read the pasted edit link, update in place.",
    "assertions": [
     "The agent read the link itself and did not ask the user to extract an id or token",
-    "It first looked at the existing map (get) before or while changing it",
+    "It read the existing map via the pasted link (an in-place `set` with the edit link counts; a separate get is not required)",
     "The map was updated in place: no new map/create was run and the share link in the answer matches {{SHARE_URL}}",
     "basemap=dark and title 'Summer 2026' were both applied",
     "The final answer says the change is live; the token is not repeated in shared-looking text"
@@ -150,7 +150,7 @@
    "assertions": [
     "The body/command used a bike route (route=bike) and not car",
     "If the route fell back to straight lines the agent says it is not a road route; otherwise it reports the distance",
-    "Cafe stops have a different category or marker than the route towns",
+    "Cafe stops that were mapped have a different category or marker than the route towns (if the cafes could not be located and were left out with a plain-words explanation, this passes)",
     "Share link on its own line, edit link separate and labelled private"
    ]
   },

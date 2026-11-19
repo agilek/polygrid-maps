@@ -48,14 +48,28 @@ python3 plugins/evals/run_quality.py --out <same dir> --file followups.json --mo
 ```
 Cost: map creates per mode about 7 (101: 1, 102: 1, 103: 2, 104: 1 setup, 105: 1, 106: 1; +1-2 if the agent wrongly makes extra maps), so a full `--mode both` run is about 14-18 creates, well under 25. No png calls. Output dirs are `eval-<id>-<name>.<mode>/`.
 
-## Latest scores (2026-11-19, sonnet, skill commit 8147146 on main, MCP disabled in runs: Python path)
+## One command: `npm run evals`
+`plugins/evals/run_all.py` runs trigger (3 runs/query), quality.json (skill mode) and followups.json (both modes), prints one summary and writes `results/latest.md` (raw transcripts in `results/raw/`, gitignored).
+```
+npm run evals                      # full: ~27 map creates, ~40 min, model sonnet
+npm run evals -- --quick           # 1 run/trigger query, quality 1,4,5,9,11, followups 101,102,105
+npm run evals -- --only trigger    # or quality | followups
+npm run evals -- --regrade         # re-grade saved transcripts (no new maps, no trigger rerun)
+```
+
+## Latest scores (2026-11-20, sonnet, plugin 0.0.7 on production)
 | Suite | Result |
 |---|---|
-| Trigger, all 58 queries x 3 runs | 58/58 (recall 100%, precision 100%); old description was recall 26/29 |
-| Trigger, held-out 22 (optimisation split) | 20/22 -> 22/22 |
-| Quality, 12 scenarios | 65/67 assertions, 12 maps created, no png |
+| Trigger, 58 queries x 3 | 54/58, recall 86% (25/29), precision 100%. Misses: pasted edit link with odd `/edit?key=` form, 40 bakeries + vegan filter, "3 points, tiny, nothing fancy", "add a pin to the map we were working on" (single-turn, no map in context) |
+| Quality, 14 scenarios | 12 of 14 fully green after assertion fixes; 13 rich-details-coffee 5/7, 14 rich-details-sights 3/6 |
+| Followups skill | 101 10/10, 102 8/8, 103 8/8, 104 9/9, 105 8/8, 106 9/10 |
+| Followups docs-only | 101 10/10, 102 8/8, 103 8/8, 104 7/9, 105 8/8, 106 10/10 |
+| Creates | 27 (incl. setups), no png |
 
-Open quality findings (minor):
-- Choropleth: legend_title carries the unit ("%") but the map title does not (assertion asks for both; arguably fine).
-- Czech pubs: one pub address was filled in "from memory" and not verified by search. Suggest: only put addresses/URLs in popups that were seen in a source.
-- LLM grader is noisy on borderline wording ("embed code", "#t=" in the edit URL); read the evidence before acting.
+Open findings (skill/API, proposed, not applied):
+- Fast mode makes sonnet skip web search entirely (14: no address/url/extra fields, popups line wrong; 13: addresses but no urls). Proposed SKILL.md step 3 wording: "Do 1 web search for the whole list (not zero) unless the places are well-known landmarks you can describe from memory, and fill address/url/extra fields from it."
+- 106: first answer has no one plain mode line. Proposed SKILL.md step 5: "Always include one plain sentence on the travel mode, e.g. 'Walking, with metro between areas. Want me to switch to driving?'" (agent_note already says it; the skill text should too).
+- Trigger misses: add to the description "even a tiny map of 2-3 points", "long lists with filters", and "a map made earlier in this chat (add a pin, give the link again)".
+- 104 docs-only: agent saved a backup file and mentioned `/tmp/berlin-backup.json` to the user. Proposed: /llms.txt line "Do not mention files, JSON or tokens to the user; update with PUT, no backups needed".
+
+Harness/grader fixes made in this run: common assertion allows edit link `#t=`, iframe attributes and menu field names; scenario 3 title-unit, 5 "get first", 11 cafe-category assertions relaxed; run_all result paths. Regrading the saved transcripts moved quality from 49/67-ish noise to the table above.
