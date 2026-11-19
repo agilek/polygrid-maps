@@ -10,7 +10,10 @@ Plain words to the user always: "map", "link", "pins", "style". Never JSON, toke
 | "show the names", "cluster the pins", "dots instead of pins" | `labels=true`, `cluster=true`, `marker=dot` |
 | "zoom closer / start in X" | `zoom=12`, `center=[lng,lat]` |
 | "remove the legend title / reset a setting" | `key=null` removes it |
-| add/remove places, new route, new layout, areas | edit saved body, `update ID --token T body.json` |
+| "add a day / another route", "add routes to my map" | `patch ID --token T changes.json` with `{"routes":[ ...only the new routes... ]}`; existing routes and pins stay, same link |
+| "recolor Day 2", "do Day 2 by bike" | `patch` with `{"routes":[{"name":"Day 2","color":"#e11d48"}]}` or `{"name":"Day 2","mode":"bike"}` (no places); `{"name":"Day 2","remove":true}` deletes it |
+| "show the days together / as tabs" | `set ID --token T route_view=together` (or `tabs`) |
+| add/remove places, new layout, areas | edit saved body, `update ID --token T body.json` |
 | "give me the link" | `links ID` |
 | "I want to edit it myself" | the private edit link |
 | "put it on my site" | `links ID` -> `embed_html` |

@@ -63,7 +63,23 @@ Why: multi-day trip; one color per day, filter by day.
  {"q":"Colosseum, Rome","category":"Day 1","title":"Colosseum","description":"Book the first slot","address":"Piazza del Colosseo 1, Rome","url":"https://colosseo.it/","Time":"08:30","Duration":"2 hours"},
  {"q":"Vatican Museums, Rome","category":"Day 2","title":"Vatican Museums","description":"Go early to skip queues"}]}
 ```
-For a route per day, build `data` with one styled LineString per day, `stroke` matching the day color, and `category` "Day n".
+For a route per day, do not use `data` lines or one map per day: use `routes` (below). Use `category` "Day n" only for pins without a route.
+
+## Route per day (routes)
+Why: multi-day trip on foot, by bike or car; one map, tabs to switch days. Each route is routed on roads, numbered 1..n, and gets its own color.
+```
++------------------------------+
+|  [All] [Day 1] [Day 2]       |
+|  (1)--(2)                    |
+|  4.2 km, about 1 h on foot   |
++------------------------------+
+```
+```json
+{"title":"Barcelona with kids","routes":[
+ {"name":"Day 1","mode":"foot","places":["Sagrada Família, Barcelona","Park Güell, Barcelona"]},
+ {"name":"Day 2","mode":"foot","places":["Casa Batlló, Barcelona",{"q":"La Boqueria, Barcelona","title":"Lunch at La Boqueria"}]}]}
+```
+Rules: `name` is required with 2+ routes; `mode` car|bike|foot (default foot); 2-25 places per route, max 6 routes, 50 places in total. `route_view` is `tabs` by default with 2+ routes (one route at a time). Use `"route_view":"together"` to compare alternatives (e.g. 3 bike route options): all routes visible, legend chips toggle them. Top-level `places` or `data` (hotel, sights) are shown with every route. Read `routes` in the response (status routed or straight, distance); a `straight` route needs a plain-words note.
 
 ## Labeled pins
 Why: a handful of places of one kind; names visible without tapping.

@@ -43,7 +43,7 @@ Good-map rules (apply silently, do not lecture):
 ```
 python3 scripts/publish.py create body.json
 ```
-It prints the result. Keep from it (for yourself): `url`, `edit_token`, `edit_url`, `id`, `warnings`, `route`. Also save the body file: it lets you recreate the map later.
+It prints the result. Keep from it (for yourself): `url`, `edit_token`, `edit_url`, `id`, `warnings`, `route`, `routes`. Also save the body file: it lets you recreate the map later.
 - If it prints a `fallback_url` instead (sandbox cannot reach the API), tell the user, positively and without technical detail: "Your map is ready. Open this link and press **Publish map** to make it live." Do not suggest changing network settings, connectors or admins; this link is the normal way here. Show the link prominently. After publishing, that page shows their share link and their private edit link; ask them to paste the edit link back here if they want you to change the map later. Suggest enabling network access for maps.polygrid.dev (Settings > Capabilities > Code execution) to get real share links next time.
 - If it exits with an API error, read its `hint`, fix the body, retry once. If a place could not be found, offer another spelling or address, or to leave it out.
 
@@ -64,7 +64,7 @@ Quick tweaks in chat (same share link, live for everyone). One command changes a
 ```
 python3 scripts/publish.py set ID --token TOKEN basemap=dark labels=true
 ```
-Typical asks: "make it dark / streets / light" (`basemap`), "rename it" (`title`, `description`), "show names" (`labels=true`), "cluster the pins" (`cluster=true`), "smaller dots" (`marker=dot`), "different color" (`color=#e11d48`), "legend heading" (`legend_title`). For anything bigger (add or remove places, new routes, new layout) edit the saved body and run `update ID --token TOKEN body.json` (this replaces the whole map; same link).
+Typical asks: "make it dark / streets / light" (`basemap`), "rename it" (`title`, `description`), "show names" (`labels=true`), "cluster the pins" (`cluster=true`), "smaller dots" (`marker=dot`), "different color" (`color=#e11d48`), "legend heading" (`legend_title`). **"Add routes / another day to my map" updates the existing map in place (same link): `patch ID --token TOKEN changes.json` with `{"routes":[...only the new routes...]}`, never a new map.** For anything bigger (add or remove places, new layout) edit the saved body and run `update ID --token TOKEN body.json` (this replaces the whole map; same link).
 
 What people usually need, and what to give them:
 - **A link to share:** the share link (`links ID`). It never contains the edit token.
@@ -99,6 +99,12 @@ Rules:
 - `basemap: "blank-auto"` is a good default for embeds (follows light/dark); plain `areas` already defaults to `blank`.
 - Pins and routes can be added on top with `places` or `data`.
 
+## Several routes (days of a trip, alternatives)
+- A multi-day itinerary is one map with `routes`, one route per day (`name` "Day 1", `mode`, `places`) and the default `route_view: "tabs"`; never one map per day. Details and example: `references/layouts.md` (Route per day).
+- Comparing options (3 bike routes, car or train) is `routes` with `"route_view": "together"`.
+- Shared places (hotel, sights) go in top-level `places`; they show with every route. Limits: 6 routes, 2-25 places per route, 50 places in total.
+- A single route stays `route` (or `connect`).
+
 ## Guardrails
 - Never put the edit token in anything shared; the share link is `url` only.
 - No private home addresses unless the user supplied them; ask before mapping people's homes.
@@ -107,4 +113,4 @@ Rules:
 - Do not show JSON, curl commands or error codes to the user.
 
 ## Body cheat sheet (for you)
-Top level: `title`, `description`, `areas` (`{within, level?, values?}`: real admin boundaries from a name, e.g. `{"within":"Berlin","values":{"Mitte":12.1}}`), `places` (names or objects `{q,title,description,category,marker-symbol,marker-color,url,image}`), `data` (GeoJSON), `connect`, `route` (car|bike|foot), `basemap` (positron|liberty|bright|dark|fiord|blank|blank-dark|blank-auto; blank = no map tiles, only your shapes; blank-auto follows the viewer's light/dark setting), `lock` (keep viewers near the data; default on for blank), `color_by` (numeric feature property → choropleth classes + range legend), `palette` (blues|greens|oranges|reds|purples|greys|viridis|rdbu), `classes` (3–7), `marker` (pin|dot|none), `color`, `cluster`, `labels`, `legend_title` ("Name (unit)"), `property_labels` ({key: popup label}), `center`, `zoom`. Feature properties (a place's `image` is its popup photo): `title`, `description`, `category`, `marker-symbol`, `marker-color`, `url`, `image`, `address`, `phone`, `opening_hours`, `price`, `rating`, `email`, `instagram`, any other key shown as a detail line, `stroke`, `fill`, `fill-opacity`. For mixed geometry use `data` with styled features; for pure named places use `places`.
+Top level: `title`, `description`, `areas` (`{within, level?, values?}`: real admin boundaries from a name, e.g. `{"within":"Berlin","values":{"Mitte":12.1}}`), `places` (names or objects `{q,title,description,category,marker-symbol,marker-color,url,image}`), `data` (GeoJSON), `connect`, `route` (car|bike|foot), `routes` (`[{name,mode,places,color?,remove?}]`, max 6, 2-25 places each: a route per day or alternative), `route_view` (tabs|together), `basemap` (positron|liberty|bright|dark|fiord|blank|blank-dark|blank-auto; blank = no map tiles, only your shapes; blank-auto follows the viewer's light/dark setting), `lock` (keep viewers near the data; default on for blank), `color_by` (numeric feature property → choropleth classes + range legend), `palette` (blues|greens|oranges|reds|purples|greys|viridis|rdbu), `classes` (3–7), `marker` (pin|dot|none), `color`, `cluster`, `labels`, `legend_title` ("Name (unit)"), `property_labels` ({key: popup label}), `center`, `zoom`. Feature properties (a place's `image` is its popup photo): `title`, `description`, `category`, `marker-symbol`, `marker-color`, `url`, `image`, `address`, `phone`, `opening_hours`, `price`, `rating`, `email`, `instagram`, any other key shown as a detail line, `stroke`, `fill`, `fill-opacity`. For mixed geometry use `data` with styled features; for pure named places use `places`.
