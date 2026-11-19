@@ -57,6 +57,9 @@ npm run evals -- --only trigger    # or quality | followups
 npm run evals -- --regrade         # re-grade saved transcripts (no new maps, no trigger rerun)
 ```
 
+## Targeted rerun after plugin 0.0.8 (supersedes the rows below for these items)
+Trigger misses 4/4 fixed, precision check 10/10 negatives clean; 13: 5/7 -> 5/7; 14: 3/6 -> 2/6 (landmarks exempt from search, scenario now conflicts with guidance); 106 skill 9/10 -> 10/10; 104 docs-only 7/9 -> 9/9. 4 creates.
+
 ## Latest scores (2026-11-20, sonnet, plugin 0.0.7 on production)
 | Suite | Result |
 |---|---|

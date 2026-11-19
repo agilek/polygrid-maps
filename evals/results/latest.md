@@ -58,3 +58,9 @@
   - The first answer states the travel mode in one plain line (e.g. walking with metro between areas) and offers t -- The first answer describes modes only inside per-day bullets (metro for Day 1, about 5 km walking plus one metro hop for Day 2). It has no single plain line sta
 
 Map creates (incl. setup): 27; png calls: 0
+
+## Targeted rerun after plugin 0.0.8 (2026-11-20, sonnet, 4 creates, no png)
+- Trigger, 4 earlier misses + 10 random negatives x3: all 4 now trigger (3/3, 3/3, 3/3, 2/3), negatives 0/3 each: recall 29/29 on this subset, precision 100%.
+- Quality 13 rich-details-coffee: 5/7 -> 5/7 (1 search done, addresses present, still no url and no Title Case extra field).
+- Quality 14 rich-details-sights: 3/6 -> 2/6 (Lisbon landmarks are exempt from search under the new fast-mode wording, so no address/url; also edit link inline, not on its own line). Scenario 14 now conflicts with the guidance; use non-landmark places or relax the assertions.
+- Followups 106 skill: 9/10 -> 10/10. Followups 104 docs-only: 7/9 -> 9/9.
