@@ -12,7 +12,7 @@ Example prompts: "Make a map of the best coffee in Lisbon for my friends." / "Pi
 ## Claude Code
 
 ```
-claude plugin marketplace add polygrid/plugins
+claude plugin marketplace add agilek/polygrid-maps
 claude plugin install polygrid-maps@polygrid
 ```
 
@@ -21,7 +21,7 @@ Installs the skill and registers the MCP server. MCP only: `claude mcp add --tra
 ## Codex
 
 ```
-codex plugin marketplace add polygrid/plugins
+codex plugin marketplace add agilek/polygrid-maps
 codex plugin add polygrid-maps@polygrid
 ```
 
@@ -40,7 +40,7 @@ One click: [Add to Cursor](cursor://anysphere.cursor-deeplink/mcp/install?name=p
 cursor://anysphere.cursor-deeplink/mcp/install?name=polygrid-maps&config=eyJ1cmwiOiJodHRwczovL21hcHMucG9seWdyaWQuZGV2L21jcCJ9
 ```
 
-Plugin (MCP server plus an agent rule): `npx -y plugins add polygrid/plugins -t cursor -y`
+Plugin (MCP server plus an agent rule): `npx -y plugins add agilek/polygrid-maps -t cursor -y`
 
 Manual, in `~/.cursor/mcp.json` (or `.cursor/mcp.json` in a project):
 
@@ -56,7 +56,7 @@ Manual, in `~/.cursor/mcp.json` (or `.cursor/mcp.json` in a project):
 ## Gemini CLI
 
 ```
-gemini extensions install https://github.com/polygrid/plugins
+gemini extensions install https://github.com/agilek/polygrid-maps
 ```
 
 Installs the MCP server, the skill and a context file. MCP only: `gemini mcp add --transport http polygrid-maps https://maps.polygrid.dev/mcp`
@@ -92,7 +92,7 @@ Clients that only speak stdio can bridge with `npx -y mcp-remote https://maps.po
 ## Skill only (any agent)
 
 ```
-npx -y skills add polygrid/plugins --skill create-map
+npx -y skills add agilek/polygrid-maps --skill create-map
 ```
 
 Works with the [`skills`](https://github.com/vercel-labs/skills) CLI for Claude Code, Codex, Cursor, Gemini CLI, OpenCode and many more. Agents that read `AGENTS.md` find a short pointer in [AGENTS.md](AGENTS.md).
