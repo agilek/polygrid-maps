@@ -153,7 +153,7 @@ def cmd_version():
     kind, _ = detect_install()
     info = fetch_latest()
     latest = info["version"] if info else None
-    outdated = bool(latest) and vtuple(VERSION) is not None and vtuple(VERSION) < vtuple(latest)
+    outdated = bool(latest) and vtuple(VERSION) is not None and vtuple(VERSION) != vtuple(latest)  # any difference: versions may also go down
     print(json.dumps({"installed": VERSION, "latest": latest, "outdated": outdated, "install_type": kind, "skill_md": installed_skill_md()}))
 
 
@@ -180,7 +180,7 @@ def newest_skill_md(root_glob_dirs):
         for ver in os.listdir(d):
             f = os.path.join(d, ver, "skills", "create-map", "SKILL.md")
             if os.path.isfile(f):
-                key = (vtuple(ver) or (0, 0, 0), os.path.getmtime(f))
+                key = os.path.getmtime(f)  # newest written wins (versions can go down, so not the highest number)
                 if not best or key > best[0]:
                     best = (key, f)
     return best[1] if best else None
@@ -256,7 +256,7 @@ def do_update(force=False):
     info = fetch_latest()
     latest = info["version"] if info else None
     res = {"install_type": kind, "from": VERSION, "latest": latest}
-    if latest and not force and vtuple(VERSION) and vtuple(VERSION) >= vtuple(latest):
+    if latest and not force and vtuple(VERSION) and vtuple(VERSION) == vtuple(latest):
         res.update(updated=False, status="up to date", skill_md=installed_skill_md(), restart_needed=False)
         return res
     method, new_md = None, None
@@ -274,6 +274,10 @@ def do_update(force=False):
         if all(run_cli(c, env) for c in cmds):
             method = kind + " plugin manager"
             new_md = plugin_skill_md(kind, root)
+            got = file_version(os.path.join(os.path.dirname(new_md), "scripts", "publish.py")) if new_md else None
+            if latest and vtuple(got) != vtuple(latest):  # the manager kept an old copy (e.g. refuses a lower version)
+                print(f"plugin manager left version {got}; falling back to the zip download", file=sys.stderr)
+                method = None
         else:
             print("plugin manager update failed; falling back to the zip download", file=sys.stderr)
     if method is None:
