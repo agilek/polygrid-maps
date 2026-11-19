@@ -24,7 +24,7 @@ API errors -> prints the JSON error, exit 1.
 import argparse, base64, json, os, re, shutil, subprocess, sys, tempfile, urllib.error, urllib.request, zipfile
 
 BASE = os.environ.get("POLYGRID_BASE", "https://maps.polygrid.dev").rstrip("/")
-VERSION = "0.0.4"
+VERSION = "0.0.5"
 UA = f"polygrid-maps-skill/{VERSION} (+https://maps.polygrid.dev)"
 COMMANDS = {"create", "update", "set", "patch", "get", "links", "png", "version"}
 STR_KEYS = {"title", "description", "legend_title", "basemap", "palette", "color", "marker"}
