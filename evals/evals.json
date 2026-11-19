@@ -1,0 +1,22 @@
+{
+  "skill_name": "create-map",
+  "should_trigger": [
+    "Make a map of the best coffee shops in Lisbon that I can share with my friends",
+    "Pin these places on a map: Eiffel Tower, Louvre, Notre-Dame, Sacre-Coeur",
+    "I'm planning a 5-day trip to Japan, can you make me a trip map with each day in a different color?",
+    "Plot these addresses for me: 10 Downing St London, 1600 Pennsylvania Ave Washington, Elysee Palace Paris",
+    "Can you put our wedding venue and the recommended hotels on a map for the guests?",
+    "Show me where all the Michelin restaurants in Copenhagen are on a map",
+    "Make a shareable map of my running route through Central Park with the water fountains marked",
+    "Create a map of the neighborhoods I'm considering for moving to in Berlin, shaded by area",
+    "Here's my itinerary for the weekend in Prague. Draw it on a map with walking directions I can send to my sister",
+    "Change the map you made earlier to dark mode and add three bars near the hotel"
+  ],
+  "should_not_trigger": [
+    "Make a bar chart of our quarterly sales by region",
+    "Create a mind map of the main ideas in this book chapter",
+    "Generate an XML sitemap for my website",
+    "Draw an architecture diagram of how our microservices call each other",
+    "Plot a heatmap of correlation between these columns in my CSV"
+  ]
+}
