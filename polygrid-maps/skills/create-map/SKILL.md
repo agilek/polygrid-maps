@@ -89,7 +89,7 @@ For "map of X by district / region / country" with a number per admin area, use 
 Rules:
 - `within` is an area name ("Berlin", "Praha, Czechia") or a Wherebox id; `level` is "auto" by default (Berlin gives its 12 districts), or 2-11, or "none". Read `warnings` (ambiguous name, unmatched `values` keys) and fix them.
 - Use real numbers the user gave or that you sourced (say where from); never invent values. Without data, `color_by: "population"` or `"area_km2"` works on its own.
-- Always set `title` and `legend_title` with units.
+- Always set `title` and `legend_title` with units ("Unemployment by district (%)", legend "%").
 - Pick the palette: `rdbu` for diverging data (above/below a midpoint), otherwise a sequential one (`blues`, `viridis`, ...).
 - `basemap: "blank-auto"` is a good default for embeds (follows light/dark); plain `areas` already defaults to `blank`.
 - Pins and routes can be added on top with `places` or `data`.
@@ -98,7 +98,7 @@ Rules:
 - Never put the edit token in anything shared; the share link is `url` only.
 - No private home addresses unless the user supplied them; ask before mapping people's homes.
 - Max 50 places. Coordinates are lng,lat (the API also fixes swapped ones and tells you in `warnings`).
-- Do not claim facts about places you did not verify (opening hours, prices); put only what you know in popups.
+- Do not claim facts about places you did not verify (opening hours, prices); put only what you know in popups. Addresses, links and photos must come from a source you actually saw (search result, the user); never fill them in from memory.
 - Do not show JSON, curl commands or error codes to the user.
 
 ## Body cheat sheet (for you)
