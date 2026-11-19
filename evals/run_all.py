@@ -127,7 +127,7 @@ def main():
         L.append("")
     L.append(f"Map creates (incl. setup): {creates}; png calls: {sum(x.get('pngs', 0) for x in allrows)}")
     txt = "\n".join(L) + "\n"
-    (HERE / "results" / "latest.md").write_text(txt)
+    (HERE / "results" / ("latest.md" if not a.only else f"latest-{a.only}.md")).write_text(txt)  # partial runs must not clobber the full summary
     print(txt)
 
 

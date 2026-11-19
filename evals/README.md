@@ -58,7 +58,7 @@ npm run evals -- --regrade         # re-grade saved transcripts (no new maps, no
 ```
 
 ## Targeted rerun after plugin 0.0.8 (supersedes the rows below for these items)
-Trigger misses 4/4 fixed, precision check 10/10 negatives clean; 13: 5/7 -> 5/7; 14: 3/6 -> 2/6 (landmarks exempt from search, scenario now conflicts with guidance); 106 skill 9/10 -> 10/10; 104 docs-only 7/9 -> 9/9. 4 creates.
+Trigger misses 4/4 fixed, 10/10 negatives clean; 13 (fast-mode assertions): 6/6 on first grade, 5/6 on regrade (a guessed address); 14: 2/5 (no search for landmarks so no address/url, no "add more detail" offer, edit link inline); 106 skill 10/10; 104 docs-only 9/9. `--only X` runs now write `results/latest-X.md` so they do not overwrite the full summary.
 
 ## Latest scores (2026-11-20, sonnet, plugin 0.0.7 on production)
 | Suite | Result |
