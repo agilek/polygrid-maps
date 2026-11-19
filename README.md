@@ -16,6 +16,8 @@ claude plugin marketplace add agilek/polygrid-maps
 claude plugin install polygrid-maps@polygrid
 ```
 
+No GitHub SSH key? Add the marketplace over HTTPS instead: `claude plugin marketplace add https://github.com/agilek/polygrid-maps.git`.
+
 Installs the skill and registers the MCP server. MCP only: `claude mcp add --transport http polygrid-maps https://maps.polygrid.dev/mcp`
 
 ## Codex
@@ -105,15 +107,16 @@ Works with the [`skills`](https://github.com/vercel-labs/skills) CLI for Claude 
 .cursor-plugin/marketplace.json     Cursor marketplace
 gemini-extension.json, GEMINI.md    Gemini CLI extension (root of the repo)
 AGENTS.md                           generic agent context
-skills -> polygrid-maps/skills      symlink for Gemini and the skills CLI
-polygrid-maps/                      the plugin: .claude-plugin, .codex-plugin, .cursor-plugin,
-                                    .mcp.json, .codex-mcp.json, rules/, skills/create-map
+skills/create-map/                  the skill (real directory; Gemini, skills CLI and all plugins)
+.claude-plugin/plugin.json, .codex-plugin/, .cursor-plugin/plugin.json
+                                    plugin manifests (the repo root is the plugin, marketplaces use source "./")
+.mcp.json, .codex-mcp.json, rules/  MCP configs and the Cursor rule
 scripts/check-manifests.mjs         consistency check
 evals/                              trigger evals
 ```
 
 ## Development
 
-- `node scripts/check-manifests.mjs` checks that all manifests parse, name and version agree, and every referenced path exists. Bump the version in all four manifests together (`polygrid-maps/.claude-plugin`, `.codex-plugin`, `.cursor-plugin`, `gemini-extension.json`).
+- `node scripts/check-manifests.mjs` checks that all manifests parse, name and version agree, and every referenced path exists. Bump the version in all four manifests together (`.claude-plugin/plugin.json`, `.codex-plugin`, `.cursor-plugin`, `gemini-extension.json`).
 - `claude plugin validate polygrid-maps && claude plugin validate .`
-- `python3 polygrid-maps/skills/create-map/scripts/publish.py --selftest` runs the skill's offline checks.
+- `python3 skills/create-map/scripts/publish.py --selftest` runs the skill's offline checks.

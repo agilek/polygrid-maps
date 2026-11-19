@@ -11,7 +11,7 @@ Two suites: does the skill trigger at the right time, and does it behave well on
 S=/private/tmp/claude-501/-Volumes-Blackbox--git-create-map-skill/42d99f0c-9c18-4bdf-94e6-11569bef611a/scratchpad/evals   # any scratch dir with a .claude/ inside proj/
 E=$PWD/plugins/evals/trigger; mkdir -p $S/proj/.claude
 cd $S/proj && PYTHONPATH=$E python3 -m scripts.run_eval --eval-set $E/trigger.json \
-  --skill-path <repo>/plugins/polygrid-maps/skills/create-map --model sonnet --num-workers 8 --runs-per-query 3 --verbose
+  --skill-path <repo>/plugins/skills/create-map --model sonnet --num-workers 8 --runs-per-query 3 --verbose
 # description optimisation (60/40 train/held-out split):
 PYTHONPATH=$E python3 -m scripts.run_loop --eval-set $E/trigger.json --skill-path ... --model sonnet --max-iterations 3 --report none
 ```

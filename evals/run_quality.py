@@ -18,7 +18,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-SKILL = HERE.parent / "polygrid-maps" / "skills" / "create-map"
+SKILL = HERE.parent / "skills" / "create-map"
 SETUP_BODY = {
     "title": "Berlin landmarks",
     "places": [

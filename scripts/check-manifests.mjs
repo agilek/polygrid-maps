@@ -2,7 +2,7 @@
 // Validates every agent manifest in this repo: JSON parses, names/versions agree,
 // MCP URL is identical everywhere, every referenced path exists. No dependencies.
 // Usage: node scripts/check-manifests.mjs
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, lstatSync } from "node:fs";
 import { resolve, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -22,7 +22,7 @@ function need(base, p, what) {
   if (!existsSync(join(rel(base), p))) fail(`${what}: path not found: ${join(base, p)}`);
 }
 
-const plugin = `${P}`;
+const plugin = ".";
 const claude = load(`${plugin}/.claude-plugin/plugin.json`);
 const codex = load(`${plugin}/.codex-plugin/plugin.json`);
 const cursor = load(`${plugin}/.cursor-plugin/plugin.json`);
@@ -51,7 +51,7 @@ for (const [label, m] of Object.entries({ claude: mClaude, codex: mCodex, cursor
   if (!e) { fail(`marketplace ${label}: no plugin entry "${P}"`); continue; }
   const src = typeof e.source === "string" ? e.source : e.source?.path;
   need("", src, `marketplace ${label} source`);
-  if (src && src.replace(/^\.\//, "") !== plugin) fail(`marketplace ${label}: source "${src}" should point at ${plugin}`);
+  if (src && src.replace(/^\.\/?/, "") !== "") fail(`marketplace ${label}: source "${src}" should be "./" (repo root is the plugin)`);
 }
 
 // plugin-level references
@@ -64,7 +64,7 @@ if (cursor) {
   need(plugin, cursor.rules, "cursor rules");
 }
 if (!existsSync(rel(`${plugin}/skills/create-map/SKILL.md`))) fail("skill create-map/SKILL.md missing");
-if (!existsSync(rel("skills/create-map/SKILL.md"))) fail("root skills/ symlink (for Gemini + skills CLI) does not resolve to create-map/SKILL.md");
+if (lstatSync(rel("skills")).isSymbolicLink()) fail("skills/ must be a real directory, not a symlink (Gemini and the skills CLI break on symlinks)");
 if (!existsSync(rel(`${plugin}/rules/polygrid-maps.mdc`))) fail("cursor rule rules/polygrid-maps.mdc missing");
 if (gemini) need("", gemini.contextFileName, "gemini contextFileName");
 for (const f of ["AGENTS.md", "README.md"]) if (!existsSync(rel(f))) fail(`${f} missing`);

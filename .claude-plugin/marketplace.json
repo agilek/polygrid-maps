@@ -10,7 +10,7 @@
       "category": "productivity",
       "homepage": "https://maps.polygrid.dev/docs/agents",
       "keywords": ["maps", "geocoding", "routes", "choropleth", "share"],
-      "source": "./polygrid-maps"
+      "source": "./"
     }
   ]
 }
