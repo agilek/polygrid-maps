@@ -44,7 +44,7 @@ Good-map rules (apply silently, do not lecture):
 python3 scripts/publish.py create body.json
 ```
 It prints the result. Keep from it (for yourself): `url`, `edit_token`, `edit_url`, `id`, `warnings`, `route`. Also save the body file: it lets you recreate the map later.
-- If it prints a `fallback_url` instead (sandbox cannot reach the API), tell the user: "I can't publish from here, but this link opens your map ready to go. Click it, check it, then press **Publish map**." Show the link prominently. After publishing, that page shows their share link and their private edit link; ask them to paste the edit link back here if they want you to change the map later. Suggest enabling network access for maps.polygrid.dev (Settings > Capabilities > Code execution) to get real share links next time.
+- If it prints a `fallback_url` instead (sandbox cannot reach the API), tell the user, positively and without technical detail: "Your map is ready. Open this link and press **Publish map** to make it live." Do not suggest changing network settings, connectors or admins; this link is the normal way here. Show the link prominently. After publishing, that page shows their share link and their private edit link; ask them to paste the edit link back here if they want you to change the map later. Suggest enabling network access for maps.polygrid.dev (Settings > Capabilities > Code execution) to get real share links next time.
 - If it exits with an API error, read its `hint`, fix the body, retry once. If a place could not be found, offer another spelling or address, or to leave it out.
 
 ### 5. Answer visually and briefly
