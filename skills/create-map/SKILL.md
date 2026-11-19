@@ -7,7 +7,7 @@ description: Use this skill to turn places into a shareable, live web map link, 
 
 Turn a plain-language request into a live, shareable map link that can be edited later. The user is usually not technical: never show JSON, field names, tokens, or API words. Talk about places, pins, colors, links.
 
-API: `https://maps.polygrid.dev` (no key needed). Everything goes through `scripts/publish.py` (Python 3, nothing to install). If the `polygrid-maps` MCP tools (`create_map`, `get_map`, `update_map`) are available and Python is not, use those instead; the flow is the same. Field details: `https://maps.polygrid.dev/llms.txt`; layout recipes: `references/layouts.md`; customising and handing the map back: `references/customise.md`; commands and API notes: `references/api-cheatsheet.md`.
+API: `https://maps.polygrid.dev` (no key needed). Everything goes through `scripts/publish.py` (Python 3, nothing to install). If the `polygrid-maps` MCP tools (`create_map`, `get_map`, `update_map`) are available and Python is not, use those instead; the flow is the same. Field details: `https://maps.polygrid.dev/llms.txt`; layout recipes: `references/layouts.md`; rich place details: `references/place-details.md`; customising and handing the map back: `references/customise.md`; commands and API notes: `references/api-cheatsheet.md`.
 
 ## Flow
 
@@ -27,9 +27,10 @@ Ask ONE round of questions, layout first:
 
 ### 3. Build the map
 Write the body to a file (e.g. `map-body.json` in a temp or scratch folder, not the user's project). Use named `places` (geocoded for you) in preference to guessed coordinates; add city and country to each name. For small venues (cafes, shops, bars) put the street address in `q` when you know it, since names alone can match the wrong spot. If a place still lands in the wrong spot, fix it with an address or leave it out, and tell the user in one plain sentence; never mention lookups, downloads or other internals. If you do use coordinates, they are `[longitude, latitude]`.
-- Every place gets: `title`, a one-line `description` saying why it is on the map, a `category` (when there are several kinds), an emoji `marker-symbol` matching the category, and `url` / `image` (https only) when you actually know a good link or photo. Never invent URLs.
+- Every place gets a rich, verified popup by default (recipes and research rules: `references/place-details.md`, read it before building): `title`; a 1-2 sentence friendly `description` saying why it is worth going; `category` (when there are several kinds) and an emoji `marker-symbol`; `address` (street and number); `url` (official site, else a reliable page); `image` when a real, loading https photo is found; plus 2-4 extra fields that fit the map's purpose, with Title Case keys ("Known for", "Opening hours", "Price"). One name and a short line is not enough.
+- Research first (web search or fetch when you have it), then fill only what a source confirms. Never invent addresses, hours, prices or URLs: omit the field instead. Research at most ~10 places in depth; for longer lists do the top ones fully and the rest basic (title, description, address, url). Without web access, use only what you reliably know (landmarks), say once that details were not verified, and omit the rest.
+- If you show opening hours, end the description with "check before you go".
 - Set a `title` that says what and where ("Best coffee in Lisbon"), and a one-sentence `description`.
-- Do not set `"image"`: the share link gets its own preview picture when it is pasted into a chat app, and preview renders are limited.
 - Set `legend_title` when categories are days or tiers (see layouts.md).
 
 Good-map rules (apply silently, do not lecture):
@@ -50,10 +51,11 @@ It prints the result. Keep from it (for yourself): `url`, `edit_token`, `edit_ur
 ### 5. Answer visually and briefly
 In this order:
 1. The share link, large and on its own line: `## [Open your map](URL)`.
-2. One line: when they paste the link into WhatsApp, iMessage or Slack, it shows a preview picture of the map.
-3. One-line summary ("14 places in 3 categories, walking route 4.2 km"). Then warnings in plain words ("I couldn't find *Cafe X*, want me to try another spelling?"). If a route fell back to straight lines, say it is not a road route.
-4. The private edit link, labeled: "Your private edit link (keep this, it lets you change the map in the browser or ask me to change it later): EDIT_URL". Keep it separate from the share link and never tell the user to send it to friends.
-5. Three suggested tweaks tailored to this map (e.g. "add restaurants nearby", "make it dark", "draw the walking route"), plus one line that you can also give it as a website embed, a download for QGIS / Google My Maps, or a picture. Say that the map stays online for 30 days after its last view.
+2. One line on the popups, e.g. "Each pin has the address, website, hours and a photo; tap Directions to get there" (mention only what you really filled in; say once if details could not be verified).
+3. One line: when they paste the link into WhatsApp, iMessage or Slack, it shows a preview picture of the map.
+4. One-line summary ("14 places in 3 categories, walking route 4.2 km"). Then warnings in plain words ("I couldn't find *Cafe X*, want me to try another spelling?"). If a route fell back to straight lines, say it is not a road route.
+5. The private edit link, labeled: "Your private edit link (keep this, it lets you change the map in the browser or ask me to change it later): EDIT_URL". Keep it separate from the share link and never tell the user to send it to friends.
+6. Three suggested tweaks tailored to this map (e.g. "add restaurants nearby", "make it dark", "draw the walking route"), plus one line that you can also give it as a website embed, a download for QGIS / Google My Maps, or a picture. Say that the map stays online for 30 days after its last view.
 
 ### 6. Give the map back, customise
 This is what makes the map useful after step 5. Offer it, do not lecture. Details and recipes: `references/customise.md`.
@@ -101,8 +103,8 @@ Rules:
 - Never put the edit token in anything shared; the share link is `url` only.
 - No private home addresses unless the user supplied them; ask before mapping people's homes.
 - Max 50 places. Coordinates are lng,lat (the API also fixes swapped ones and tells you in `warnings`).
-- Do not claim facts about places you did not verify (opening hours, prices); put only what you know in popups. Addresses, links and photos must come from a source you actually saw (search result, the user); never fill them in from memory.
+- Do not claim facts about places you did not verify. Addresses, hours, prices, links and photos must come from a source you actually saw (search result, fetched page, the user); never fill them in from memory, omit the field instead.
 - Do not show JSON, curl commands or error codes to the user.
 
 ## Body cheat sheet (for you)
-Top level: `title`, `description`, `areas` (`{within, level?, values?}`: real admin boundaries from a name, e.g. `{"within":"Berlin","values":{"Mitte":12.1}}`), `places` (names or objects `{q,title,description,category,marker-symbol,marker-color,url,image}`), `data` (GeoJSON), `connect`, `route` (car|bike|foot), `basemap` (positron|liberty|bright|dark|fiord|blank|blank-dark|blank-auto; blank = no map tiles, only your shapes; blank-auto follows the viewer's light/dark setting), `lock` (keep viewers near the data; default on for blank), `color_by` (numeric feature property → choropleth classes + range legend), `palette` (blues|greens|oranges|reds|purples|greys|viridis|rdbu), `classes` (3–7), `marker` (pin|dot|none), `color`, `cluster`, `labels`, `legend_title`, `center`, `zoom`. Feature properties (a place's `image` is its popup photo): `title`, `description`, `category`, `marker-symbol`, `marker-color`, `url`, `image`, `stroke`, `fill`, `fill-opacity`. For mixed geometry use `data` with styled features; for pure named places use `places`.
+Top level: `title`, `description`, `areas` (`{within, level?, values?}`: real admin boundaries from a name, e.g. `{"within":"Berlin","values":{"Mitte":12.1}}`), `places` (names or objects `{q,title,description,category,marker-symbol,marker-color,url,image}`), `data` (GeoJSON), `connect`, `route` (car|bike|foot), `basemap` (positron|liberty|bright|dark|fiord|blank|blank-dark|blank-auto; blank = no map tiles, only your shapes; blank-auto follows the viewer's light/dark setting), `lock` (keep viewers near the data; default on for blank), `color_by` (numeric feature property → choropleth classes + range legend), `palette` (blues|greens|oranges|reds|purples|greys|viridis|rdbu), `classes` (3–7), `marker` (pin|dot|none), `color`, `cluster`, `labels`, `legend_title`, `center`, `zoom`. Feature properties (a place's `image` is its popup photo): `title`, `description`, `category`, `marker-symbol`, `marker-color`, `url`, `image`, `address`, `phone`, `opening_hours`, `price`, `rating`, `email`, `instagram`, any other key shown as a detail line, `stroke`, `fill`, `fill-opacity`. For mixed geometry use `data` with styled features; for pure named places use `places`.

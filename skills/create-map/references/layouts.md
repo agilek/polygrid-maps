@@ -26,8 +26,8 @@ Why: different kinds of places, viewers can show only what they want.
 ```
 ```json
 {"title":"Lisbon highlights","legend_title":"Type","places":[
- {"q":"Time Out Market, Lisbon","title":"Time Out Market","description":"Best food hall to sample many dishes","category":"Eat","marker-symbol":"🍴","marker-color":"#dc2626"},
- {"q":"Belem Tower, Lisbon","title":"Belem Tower","description":"Iconic riverside fortress","category":"Sights","marker-symbol":"🏰","marker-color":"#2563eb","url":"https://www.torrebelem.gov.pt/"}]}
+ {"q":"Time Out Market, Lisbon","title":"Time Out Market","description":"Best food hall to sample many dishes. Check before you go: stalls differ.","category":"Eat","marker-symbol":"🍴","marker-color":"#dc2626","address":"Av. 24 de Julho 49, 1200-479 Lisboa","url":"https://www.timeoutmarket.com/lisboa/","Cuisine":"Portuguese, mixed","Price":"EUR 8-20 per dish","Opening hours":"Daily 10-24"},
+ {"q":"Belem Tower, Lisbon","title":"Belem Tower","description":"Iconic riverside fortress","category":"Sights","marker-symbol":"🏰","marker-color":"#2563eb","address":"Av. Brasilia, 1400-038 Lisboa","url":"https://www.torrebelem.gov.pt/","Tickets":"About EUR 8","Time needed":"1 hour"}]}
 ```
 
 ## Numbered itinerary
@@ -60,7 +60,7 @@ Why: multi-day trip; one color per day, filter by day.
 ```
 ```json
 {"title":"Rome in 3 days","legend_title":"Day","places":[
- {"q":"Colosseum, Rome","category":"Day 1","title":"Colosseum","description":"Book the first slot"},
+ {"q":"Colosseum, Rome","category":"Day 1","title":"Colosseum","description":"Book the first slot","address":"Piazza del Colosseo 1, Rome","url":"https://colosseo.it/","Time":"08:30","Duration":"2 hours"},
  {"q":"Vatican Museums, Rome","category":"Day 2","title":"Vatican Museums","description":"Go early to skip queues"}]}
 ```
 For a route per day, build `data` with one styled LineString per day, `stroke` matching the day color, and `category` "Day n".
@@ -76,7 +76,8 @@ Why: a handful of places of one kind; names visible without tapping.
 +------------------------------+
 ```
 ```json
-{"title":"Coffee in Vienna","labels":true,"color":"#b45309","places":["Cafe Central, Vienna","Cafe Sperl, Vienna"]}
+{"title":"Coffee in Vienna","labels":true,"color":"#b45309","places":[
+ {"q":"Cafe Sperl, Gumpendorfer Strasse 11, Vienna","title":"Cafe Sperl","description":"Classic 1880 coffee house, great for a slow melange and cake.","address":"Gumpendorfer Str. 11, 1060 Wien","url":"https://www.cafesperl.at/","Known for":"Apple strudel","Neighbourhood":"Mariahilf"}]}
 ```
 
 ## Clustered
@@ -131,6 +132,6 @@ Why: zones, neighborhoods, parks, service areas.
 - At most 7 categories (merge the rest into "Other"); legend shown whenever there are 2+.
 - Colors mean something (green parks, red food, blue sights); no near-identical colors.
 - One emoji per category, consistent.
-- Every popup: title plus one line saying why it is there. Add `url` / `image` (https only) only when real.
+- Every popup: title, a 1-2 sentence description, address, url, plus 2-4 purpose fields (see place-details.md). Add `image` (https only) only when real; omit anything unverified.
 - Title says what and where. Basemap: light by default, dark for night/nightlife, streets for walking.
 - Fit all places; drop far-away outliers with a warning.

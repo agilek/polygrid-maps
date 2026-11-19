@@ -24,3 +24,9 @@ legacy: publish.py body.json [--id ID --token T]; publish.py --get ID
 
 ## MCP equivalents
 `create_map` = create; `get_map` = get (editable body); `update_map` = update with the edit token (merge the change into the `get_map` body first). Use only when Python is unavailable.
+
+## Rich place body (default shape)
+```json
+{"title":"Specialty coffee in Vienna","places":[{"q":"Gumpendorfer Strasse 11, Vienna","title":"Cafe Sperl","description":"Classic coffee house; check before you go.","category":"Coffee house","marker-symbol":"☕","address":"Gumpendorfer Str. 11, 1060 Wien","url":"https://www.cafesperl.at/","image":"https://upload.wikimedia.org/...jpg","Known for":"Apple strudel","Opening hours":"Mon-Sat 7-22"}]}
+```
+Standard keys: `address`, `phone`, `opening_hours`, `price`, `rating`, `website` (alias of `url`), `email`, `instagram`. Any other key (Title Case, e.g. `Known for`) shows as a detail line. Map option `directions` (default on) adds a Directions button. See `place-details.md`.

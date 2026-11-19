@@ -165,6 +165,33 @@
     "The share link is on its own line and the private edit link is separate and labelled",
     "Only real, verifiable pubs are included (no invented URLs in popups)"
    ]
+  },
+  {
+   "id": 13,
+   "name": "rich-details-coffee",
+   "prompt": "Make a map of the best specialty coffee places in Vienna, with a short note on each, so I can share it with friends",
+   "expected_output": "Rich popups: address, url, purpose fields.",
+   "assertions": [
+    "In the map body, most places (at least 70%) have both an `address` and a `url`",
+    "Places carry 2 or more extra purpose fields beyond title/description (e.g. Known for, Neighbourhood, Price, Opening hours) with Title Case keys",
+    "No invented-looking data: fields are omitted when no source confirmed them (no generic or placeholder values, no fake URLs); if there was no web access the answer says details were not verified",
+    "If opening hours are shown, the description says to check before you go",
+    "The final answer says in one line what the popups contain (address, website, hours, photo, Directions)",
+    "The share link is on its own line and the edit link is separate and labelled private"
+   ]
+  },
+  {
+   "id": 14,
+   "name": "rich-details-sights",
+   "prompt": "Map the 6 must-see sights in Lisbon for a first-time visitor, share link for my parents please. Go ahead, no questions.",
+   "expected_output": "Rich sight popups.",
+   "assertions": [
+    "In the map body, most places (at least 70%) have both an `address` and a `url`",
+    "Places carry 2 or more extra purpose fields (e.g. Opening hours, Tickets, Time needed) with Title Case keys",
+    "No invented-looking data: unverified fields (hours, prices) are omitted rather than guessed; if there was no web access the answer says details were not verified",
+    "The final answer says in one line what the popups contain (address, website, hours, photo, Directions)",
+    "The share link is on its own line and the edit link is separate and labelled private"
+   ]
   }
  ]
 }
