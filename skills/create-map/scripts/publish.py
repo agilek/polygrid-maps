@@ -8,6 +8,8 @@
   publish.py get ID                               editable body (no token needed)
   publish.py links ID                             share/embed/download/variant links
   publish.py png ID out.png                       download the preview picture
+  publish.py version                              installed vs latest skill version (JSON)
+  publish.py update                               update this skill to the latest version (no arguments)
   publish.py --selftest
 
 ID may be a bare id, a share URL (.../m/ID?basemap=dark) or an edit URL
@@ -19,11 +21,12 @@ Env POLYGRID_BASE overrides the API origin (e.g. http://localhost:8787).
 Network/proxy failure on create -> prints {"fallback_url": ...}, exit 0.
 API errors -> prints the JSON error, exit 1.
 """
-import argparse, base64, json, os, re, sys, urllib.error, urllib.request
+import argparse, base64, json, os, re, shutil, subprocess, sys, tempfile, urllib.error, urllib.request, zipfile
 
 BASE = os.environ.get("POLYGRID_BASE", "https://maps.polygrid.dev").rstrip("/")
-UA = "create-map-skill/2.0 (+https://maps.polygrid.dev)"
-COMMANDS = {"create", "update", "set", "patch", "get", "links", "png"}
+VERSION = "2.0.0"
+UA = f"polygrid-maps-skill/{VERSION} (+https://maps.polygrid.dev)"
+COMMANDS = {"create", "update", "set", "patch", "get", "links", "png", "version"}
 STR_KEYS = {"title", "description", "legend_title", "basemap", "palette", "color", "marker"}
 BASEMAPS = ["positron", "liberty", "bright", "dark", "fiord", "blank", "blank-dark", "blank-auto"]
 
@@ -75,8 +78,223 @@ def request(method, path, body=None, token=None, raw=False):
             return e.code, None  # proxy/WAF page
 
 
+_updating = False
+
+
 def call(method, path, body=None, token=None):
-    return request(method, path, body, token)
+    status, out = request(method, path, body, token)
+    if isinstance(out, dict) and "plugin_update" in out:
+        pu = out.pop("plugin_update")  # also keeps it out of get -> put round trips
+        global _updating
+        if not _updating:
+            _updating = True
+            print(f"UPDATE AVAILABLE: map skill {pu.get('yours', VERSION)} -> {pu.get('latest')}. Updating now.", file=sys.stderr)
+            try:
+                res = do_update()
+                print("UPDATE RESULT: " + json.dumps(res, ensure_ascii=False), file=sys.stderr)
+            except Exception as e:  # never break the actual request
+                print(f"UPDATE FAILED: {e}", file=sys.stderr)
+    return status, out
+
+
+# ---- self-update ------------------------------------------------------------
+
+def vtuple(v):
+    m = re.match(r"^\D*(\d+)\.(\d+)\.(\d+)", v or "")
+    return tuple(int(x) for x in m.groups()) if m else None
+
+
+def fetch_latest(timeout=5):
+    """GET /v1/plugin; None when offline or anything is off. Never raises."""
+    try:
+        req = urllib.request.Request(BASE + "/v1/plugin", headers={"User-Agent": UA, "Accept": "application/json"})
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            d = json.loads(r.read())
+        return d if isinstance(d, dict) and vtuple(d.get("version")) else None
+    except Exception:
+        return None
+
+
+def skill_dir():
+    return os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+
+
+def detect_install(path=None):
+    """-> (type, root) from the script's own path. root = the client's config dir (.claude, .codex, .gemini) or None."""
+    p = (path or os.path.realpath(__file__)).replace("\\", "/")
+    cfg = os.path.realpath(os.environ.get("CLAUDE_CONFIG_DIR") or "/nonexistent").replace("\\", "/").rstrip("/")
+    m = re.search(r"^(.*?/\.claude)/plugins/", p)
+    if m: return "claude-code", m.group(1)
+    if cfg and p.startswith(cfg + "/plugins/"): return "claude-code", cfg
+    m = re.search(r"^(.*?/\.codex)/", p)
+    if m: return "codex", m.group(1)
+    m = re.search(r"^(.*?/\.gemini)/extensions/", p)
+    if m: return "gemini", m.group(1)
+    cx = os.path.realpath(os.environ.get("CODEX_HOME") or "/nonexistent").replace("\\", "/").rstrip("/")
+    if cx and p.startswith(cx + "/plugins/"): return "codex", cx
+    m = re.search(r"^(.*?)/plugins/cache/[^/]+/polygrid-maps/", p)  # custom config dir without a dotted name
+    if m: return "claude-code", m.group(1)
+    return "skill-copy", None
+
+
+def installed_skill_md():
+    return os.path.join(skill_dir(), "SKILL.md")
+
+
+def file_version(path):
+    try:
+        m = re.search(r'^VERSION = "(.*)"$', open(path, encoding="utf-8").read(), re.M)
+        return m.group(1) if m else None
+    except OSError:
+        return None
+
+
+def cmd_version():
+    kind, _ = detect_install()
+    info = fetch_latest()
+    latest = info["version"] if info else None
+    outdated = bool(latest) and vtuple(VERSION) is not None and vtuple(VERSION) < vtuple(latest)
+    print(json.dumps({"installed": VERSION, "latest": latest, "outdated": outdated, "install_type": kind, "skill_md": installed_skill_md()}))
+
+
+def run_cli(args, env=None):
+    """Run a client CLI; True on success. Output goes to stderr so stdout stays clean."""
+    if not shutil.which(args[0]):
+        print(f"{args[0]}: not found", file=sys.stderr)
+        return False
+    try:
+        r = subprocess.run(args, env=env, stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=180)
+    except (OSError, subprocess.SubprocessError) as e:
+        print(f"{' '.join(args)}: {e}", file=sys.stderr)
+        return False
+    sys.stderr.write((r.stdout or "") + (r.stderr or ""))
+    return r.returncode == 0
+
+
+def newest_skill_md(root_glob_dirs):
+    """Newest <dir>/<version>/skills/create-map/SKILL.md under the given plugin dirs (by version, then mtime)."""
+    best = None
+    for d in root_glob_dirs:
+        if not os.path.isdir(d):
+            continue
+        for ver in os.listdir(d):
+            f = os.path.join(d, ver, "skills", "create-map", "SKILL.md")
+            if os.path.isfile(f):
+                key = (vtuple(ver) or (0, 0, 0), os.path.getmtime(f))
+                if not best or key > best[0]:
+                    best = (key, f)
+    return best[1] if best else None
+
+
+def plugin_skill_md(kind, root):
+    if kind == "claude-code":
+        try:  # the plugin manager records the active install path
+            plugins = json.load(open(os.path.join(root, "plugins", "installed_plugins.json"))).get("plugins", {})
+            for e in plugins.get("polygrid-maps@polygrid", []):
+                f = os.path.join(e.get("installPath", ""), "skills", "create-map", "SKILL.md")
+                if os.path.isfile(f):
+                    return f
+        except (OSError, ValueError):
+            pass
+        return newest_skill_md([os.path.join(root, "plugins", "cache", m, "polygrid-maps") for m in _subdirs(os.path.join(root, "plugins", "cache"))])
+    if kind == "codex":
+        return newest_skill_md([os.path.join(root, "plugins", "cache", m, "polygrid-maps") for m in _subdirs(os.path.join(root, "plugins", "cache"))])
+    if kind == "gemini":
+        f = os.path.join(root, "extensions", "polygrid-maps", "skills", "create-map", "SKILL.md")
+        return f if os.path.isfile(f) else None
+    return None
+
+
+def _subdirs(d):
+    try:
+        return [x for x in os.listdir(d) if os.path.isdir(os.path.join(d, x))]
+    except OSError:
+        return []
+
+
+def update_via_zip(dest):
+    """Download /create-map.zip, check it, and copy its files over dest (add/replace only, atomic per file)."""
+    with tempfile.TemporaryDirectory() as tmp:
+        zpath = os.path.join(tmp, "create-map.zip")
+        req = urllib.request.Request(BASE + "/create-map.zip", headers={"User-Agent": UA})
+        with urllib.request.urlopen(req, timeout=60) as r, open(zpath, "wb") as f:
+            shutil.copyfileobj(r, f)
+        with zipfile.ZipFile(zpath) as z:
+            names = z.namelist()
+            if "create-map/SKILL.md" not in names:
+                raise RuntimeError("downloaded zip has no create-map/SKILL.md")
+            members = []
+            for n in names:  # validate everything before writing anything
+                rel = n[len("create-map/"):] if n.startswith("create-map/") else None
+                if not rel or n.endswith("/"):
+                    continue
+                parts = rel.split("/")
+                if ".." in parts or os.path.isabs(rel) or "\\" in rel:
+                    raise RuntimeError(f"unsafe path in zip: {n}")
+                members.append((n, parts))
+            count = 0
+            for n, parts in members:
+                target = os.path.join(dest, *parts)
+                os.makedirs(os.path.dirname(target), exist_ok=True)
+                fd, part = tempfile.mkstemp(dir=os.path.dirname(target), prefix=".upd-")
+                try:
+                    with os.fdopen(fd, "wb") as out:
+                        out.write(z.read(n))
+                    os.chmod(part, 0o755 if parts[-1].endswith(".py") and parts[0] == "scripts" else 0o644)
+                    os.replace(part, target)
+                except BaseException:
+                    if os.path.exists(part):
+                        os.unlink(part)
+                    raise
+                count += 1
+    return count
+
+
+def do_update(force=False):
+    """Update this install. Returns a result dict; raises only on total failure."""
+    kind, root = detect_install()
+    info = fetch_latest()
+    latest = info["version"] if info else None
+    res = {"install_type": kind, "from": VERSION, "latest": latest}
+    if latest and not force and vtuple(VERSION) and vtuple(VERSION) >= vtuple(latest):
+        res.update(updated=False, status="up to date", skill_md=installed_skill_md(), restart_needed=False)
+        return res
+    method, new_md = None, None
+    if kind != "skill-copy":
+        env = dict(os.environ)
+        if kind == "claude-code" and root != os.path.join(os.path.expanduser("~"), ".claude"):
+            env["CLAUDE_CONFIG_DIR"] = root
+        if kind == "codex" and root != os.path.join(os.path.expanduser("~"), ".codex"):
+            env["CODEX_HOME"] = root
+        cmds = {
+            "claude-code": [["claude", "plugin", "marketplace", "update", "polygrid"], ["claude", "plugin", "update", "polygrid-maps@polygrid"]],
+            "codex": [["codex", "plugin", "marketplace", "upgrade", "polygrid"], ["codex", "plugin", "add", "polygrid-maps@polygrid"]],
+            "gemini": [["gemini", "extensions", "update", "polygrid-maps"]],
+        }[kind]
+        if all(run_cli(c, env) for c in cmds):
+            method = kind + " plugin manager"
+            new_md = plugin_skill_md(kind, root)
+        else:
+            print("plugin manager update failed; falling back to the zip download", file=sys.stderr)
+    if method is None:
+        method = "zip download"
+        res["files"] = update_via_zip(skill_dir())
+        new_md = installed_skill_md()
+    new_ver = file_version(os.path.join(os.path.dirname(new_md), "scripts", "publish.py")) if new_md else None
+    res.update(updated=True, method=method, to=new_ver or latest, skill_md=new_md or installed_skill_md())
+    if method == "zip download":
+        res.update(restart_needed=False, note="Files were replaced in place. Re-read the SKILL.md at skill_md now and follow it.")
+    else:
+        res.update(restart_needed=True, note="The plugin manager may apply the update only in the next session, but the files on disk are already new. Re-read the SKILL.md at skill_md now and follow it.")
+    return res
+
+
+def cmd_update_skill(force=False):
+    try:
+        print(json.dumps(do_update(force), indent=2, ensure_ascii=False))
+    except (urllib.error.URLError, OSError, RuntimeError, zipfile.BadZipFile) as e:
+        print(json.dumps({"updated": False, "error": f"update failed: {e}", "hint": "Carry on with the current version; the user can update manually: https://maps.polygrid.dev/docs/agents"}))
+        sys.exit(1)
 
 
 def emit(status, out):
@@ -156,6 +374,70 @@ def cmd_png(ref, outfile):
     print(json.dumps({"saved": outfile, "bytes": len(blob)}))
 
 
+def selftest_update():
+    """Self-update paths with the network mocked."""
+    global request, fetch_latest, _updating
+    assert vtuple("2.10.0") > vtuple("2.9.9") and vtuple("garbage") is None and vtuple("v1.2.3-beta") == (1, 2, 3)
+    assert detect_install("/home/u/.claude/plugins/cache/polygrid/polygrid-maps/2.0.0/skills/create-map/scripts/publish.py")[0] == "claude-code"
+    assert detect_install("/home/u/.codex/plugins/cache/polygrid/polygrid-maps/2.0.0/skills/create-map/scripts/publish.py") == ("codex", "/home/u/.codex")
+    assert detect_install("/home/u/.gemini/extensions/polygrid-maps/skills/create-map/scripts/publish.py") == ("gemini", "/home/u/.gemini")
+    assert detect_install("/tmp/x/plugins/cache/polygrid/polygrid-maps/2.0.0/skills/create-map/scripts/publish.py") == ("claude-code", "/tmp/x")
+    assert detect_install("/home/u/.agents/skills/create-map/scripts/publish.py")[0] == "skill-copy"
+    # zip update into a temp skill dir: replaces known files, adds new ones, leaves unknown ones, rejects bad zips
+    import io, types
+    def make_zip(files):
+        b = io.BytesIO()
+        with zipfile.ZipFile(b, "w") as z:
+            for n, c in files.items():
+                z.writestr(n, c)
+        return b.getvalue()
+    class Resp(io.BytesIO):
+        def __enter__(self): return self
+        def __exit__(self, *a): return False
+    saved = urllib.request.urlopen
+    try:
+        with tempfile.TemporaryDirectory() as d:
+            os.makedirs(os.path.join(d, "scripts"))
+            for n, c in {"SKILL.md": "old", "scripts/publish.py": 'VERSION = "1.9.0"\n', "mine.txt": "keep"}.items():
+                open(os.path.join(d, n), "w").write(c)
+            urllib.request.urlopen = lambda *a, **k: Resp(make_zip({"create-map/SKILL.md": "new", "create-map/scripts/publish.py": 'VERSION = "2.1.0"\n', "create-map/references/x.md": "x"}))
+            assert update_via_zip(d) == 3
+            assert open(os.path.join(d, "SKILL.md")).read() == "new" and file_version(os.path.join(d, "scripts", "publish.py")) == "2.1.0"
+            assert open(os.path.join(d, "mine.txt")).read() == "keep" and os.path.isfile(os.path.join(d, "references", "x.md"))
+            assert not [f for f in os.listdir(d) if f.startswith(".upd-")]
+            for bad in ({"create-map/other.md": "x"}, {"create-map/SKILL.md": "x", "create-map/../evil": "x"}):
+                urllib.request.urlopen = lambda *a, bad=bad, **k: Resp(make_zip(bad))
+                try: update_via_zip(d); raise SystemExit("bad zip accepted")
+                except RuntimeError: pass
+            assert open(os.path.join(d, "SKILL.md")).read() == "new"
+    finally:
+        urllib.request.urlopen = saved
+    # offline: latest is None, version never raises; up to date -> no-op
+    real_fetch = fetch_latest
+    fetch_latest = lambda timeout=5: None
+    try:
+        cmd_version()
+    finally:
+        fetch_latest = real_fetch
+    fetch_latest = lambda timeout=5: {"version": VERSION}
+    try:
+        assert do_update()["status"] == "up to date"
+    finally:
+        fetch_latest = real_fetch
+    # plugin_update in a response triggers the update once, is reported on stderr and is removed from the body
+    real_request, calls = request, []
+    request = lambda *a, **k: (200, {"url": "u", "plugin_update": {"latest": "9.9.9", "yours": VERSION}})
+    globals()["do_update"], real_update = (lambda force=False: calls.append(1) or {"updated": True}), do_update
+    _updating = False
+    try:
+        st, out = call("POST", "/v1/maps", {})
+        call("GET", "/v1/maps/x")
+        assert out == {"url": "u"} and len(calls) == 1
+    finally:
+        request, _updating = real_request, False
+        globals()["do_update"] = real_update
+
+
 def selftest():
     body = {"title": "Tést ☕", "places": ["Prague", "Brno?x=1&y=2"], "data": {"a": ">>>???"}}
     u = fallback_url(body)
@@ -170,6 +452,7 @@ def selftest():
     assert parse_value("zoom", "12") == 12 and parse_value("labels", "true") is True
     assert parse_value("title", "2024") == "2024" and parse_value("center", "[14.4,50.1]") == [14.4, 50.1]
     assert parse_value("basemap", "dark") == "dark" and parse_value("cluster", "false") is False
+    selftest_update()
     print("selftest ok")
 
 
@@ -187,6 +470,8 @@ def main():
         return emit(*call("GET", "/v1/maps/" + parse_ref(argv[1])[0]))
     if argv[:1] == ["--selftest"]:
         return selftest()
+    if argv[:1] == ["update"] and all(a in ("--force",) for a in argv[1:]):  # no ref/body: update the skill itself
+        return cmd_update_skill("--force" in argv)
 
     ap = argparse.ArgumentParser(description="Polygrid Maps helper")
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -197,6 +482,7 @@ def main():
     s = sub.add_parser("get"); s.add_argument("ref")
     s = sub.add_parser("links"); s.add_argument("ref")
     s = sub.add_parser("png"); s.add_argument("ref"); s.add_argument("out")
+    sub.add_parser("version")
     a = ap.parse_args(argv)
     try:
         if a.cmd == "create": cmd_create(a.body)
@@ -215,6 +501,7 @@ def main():
         elif a.cmd == "get": emit(*call("GET", "/v1/maps/" + parse_ref(a.ref)[0]))
         elif a.cmd == "links": cmd_links(a.ref)
         elif a.cmd == "png": cmd_png(a.ref, a.out)
+        elif a.cmd == "version": cmd_version()
     except (urllib.error.URLError, OSError) as e:
         sys.exit(json.dumps({"error": f"cannot reach the maps service: {e}"}))
 

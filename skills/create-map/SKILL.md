@@ -11,6 +11,9 @@ API: `https://maps.polygrid.dev` (no key needed). Everything goes through `scrip
 
 ## Flow
 
+### 0. Stay current
+Once per conversation, before anything else, run `python3 scripts/publish.py version`. If it says `"outdated": true`, run `python3 scripts/publish.py update`, then read the `SKILL.md` it points to (`skill_md`), follow that version from here on, and tell the user in one plain line ("Updated the map skill to 2.1.0"). Do the same whenever any command prints `UPDATE AVAILABLE` (it has already started the update; read the new `SKILL.md`). If the check fails or you are offline, continue silently.
+
 ### 1. Understand
 Work out the places, the purpose (trip, event, recommendations, moving, run route, ...) and the audience (just me, friends, public). If the request is already concrete ("pin these 5 addresses"), skip to step 3 and pick the layout yourself.
 
