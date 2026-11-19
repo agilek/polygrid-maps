@@ -45,7 +45,8 @@ def run_setup(work):
 def claude_turn(prompt, cwd, model, session=None, timeout=600):
     cmd = ["claude", "-p", prompt, "--output-format", "stream-json", "--verbose",
            "--model", model, "--setting-sources", "project", "--strict-mcp-config",
-           "--permission-mode", "bypassPermissions"]
+           "--permission-mode", "bypassPermissions",
+           "--allowedTools", "WebSearch,WebFetch"]  # real users have web access; the rich-details scenarios need it
     if session:
         cmd += ["--resume", session]
     p = subprocess.run(cmd, cwd=cwd, env=clean_env(), capture_output=True, text=True, timeout=timeout)

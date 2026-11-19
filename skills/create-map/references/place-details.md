@@ -23,6 +23,8 @@ A pin with only a name and one line is not useful. Give every place a popup some
 Pick the 2-4 that a source confirms; skip the rest. Other purposes: choose the fields a visitor would ask about.
 
 ## Research rules
+- Look places up one by one: for each place in depth, search its name plus city, open its official site (WebFetch) and take the address, hours, price and a photo from there. For 10 places that is 10 quick lookups; one general "best of" search is only the starting list. Don't stop after the list search.
+- Before publishing, check the body: every researched place should have `address`, `url` and 2+ extra fields. If many lack them, do another lookup round instead of publishing thin.
 - Use web search / fetch when you have it: the venue's own site first, then a reliable guide or map listing. Fill a field only when a source confirms it.
 - Never invent addresses, hours, prices, ratings, URLs or photos. Unknown means omit the field; a missing field beats a wrong one.
 - Opening hours change: when shown, end the description with "check before you go". Prices: write them as the source does ("EUR 4.50 espresso", "$$") or as a range.

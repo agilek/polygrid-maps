@@ -17,6 +17,8 @@ PYTHONPATH=$E python3 -m scripts.run_loop --eval-set $E/trigger.json --skill-pat
 ```
 
 ## 2. Quality evals (`quality.json`, `run_quality.py`)
+
+The runner passes `--allowedTools WebSearch,WebFetch` to `claude -p` (real users have web access; the rich-details scenarios 13 and 14 need it).
 12 scenarios with assertions (concrete request builds without questions; ambiguous request gets one layout round; choropleth uses `areas` with real data; same-chat edit keeps the URL; pasted edit link updates in place; share-link-only offers a copy; embed; GeoJSON export; place not found; edit link never offered for sharing; bike route; Czech).
 **This publishes real maps to production** (about 1 per scenario, no `png` calls).
 ```
