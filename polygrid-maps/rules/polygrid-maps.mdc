@@ -1,0 +1,16 @@
+---
+description: "Make a shareable web map with a live link from places, addresses, trips, routes or data per area (choropleth), and edit maps made earlier, using the Polygrid Maps MCP server. Not for charts, diagrams or code maps."
+globs:
+alwaysApply: false
+---
+
+# Polygrid Maps
+
+Use the `polygrid-maps` MCP server (https://maps.polygrid.dev/mcp) to turn places the user names into a live, shareable map. No account or API key is needed.
+
+- Call `create_map` with the places (name, and address or coordinates when known), optional categories, routes, and popup text, links or photos. Use `get_map` and `update_map` (when listed) to read and change a map made earlier.
+- Reply with the share link. Keep the private edit link for later changes and tell the user it is the edit link; never publish it.
+- For "map of X by region/country" with real numbers per area, build a shaded (choropleth) map from the real figures. Never invent data.
+- Talk about places, pins and colors, not JSON, fields or tokens.
+- If the server is not connected, ask the user to enable `polygrid-maps` in Cursor Settings > MCP.
+- Do not use for charts, mind maps, diagrams, sitemaps, code or architecture maps, or directions the user only wants to read.

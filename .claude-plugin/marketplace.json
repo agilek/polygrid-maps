@@ -1,13 +1,16 @@
 {
   "name": "polygrid",
+  "description": "Maps for people and AI agents: turn places, routes and data into live, shareable, editable web maps.",
   "owner": { "name": "Polygrid", "url": "https://maps.polygrid.dev" },
-  "metadata": { "description": "Maps for people and AI agents: turn places, routes and data into live, shareable, editable web maps." },
   "plugins": [
     {
       "name": "polygrid-maps",
+      "displayName": "Polygrid Maps",
       "description": "Turn places, trips, routes and data per area into a live, shareable, editable web map link.",
-      "source": "./polygrid-maps",
-      "category": "productivity"
+      "category": "productivity",
+      "homepage": "https://maps.polygrid.dev/docs/agents",
+      "keywords": ["maps", "geocoding", "routes", "choropleth", "share"],
+      "source": "./polygrid-maps"
     }
   ]
 }

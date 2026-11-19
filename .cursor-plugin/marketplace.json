@@ -1,0 +1,8 @@
+{
+  "name": "polygrid",
+  "owner": { "name": "Polygrid", "url": "https://maps.polygrid.dev" },
+  "metadata": { "description": "Maps for people and AI agents: live, shareable, editable web maps." },
+  "plugins": [
+    { "name": "polygrid-maps", "source": "polygrid-maps", "description": "Turn places, trips, routes and data per area into a live, shareable, editable web map link." }
+  ]
+}

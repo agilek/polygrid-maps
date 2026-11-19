@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "polygrid-maps": {
+      "type": "http",
+      "url": "https://maps.polygrid.dev/mcp"
+    }
+  }
+}
