@@ -1,8 +1,8 @@
-# Rich place details (default for every map)
+# Rich place details (optional deep mode)
 
-A pin with only a name and one line is not useful. Give every place a popup someone can act on.
+Not the default: maps are made fast (1-2 searches, only what they show). Use this reference only when the user asks for more detail (hours, photos, per-place lookups).
 
-## Always
+## Fields
 - `title`, plus `description`: 1-2 friendly sentences on why it is worth going (what to order or see, the vibe). No marketing filler.
 - `category` and an emoji `marker-symbol` (when there are several kinds).
 - `address`: street and number, as the venue or a reliable source writes it. Also use it in `q` for geocoding.
