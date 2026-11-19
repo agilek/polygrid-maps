@@ -1,197 +1,195 @@
 {
- "skill_name": "create-map",
- "setups": {
-  "create_3pin_map": "Run `publish.py create` for a map of Brandenburg Gate, Reichstag and Checkpoint Charlie in Berlin; fills {{SHARE_URL}}, {{EDIT_URL}}, {{MAP_ID}}"
- },
- "common_assertions": [
-  "The final answer shows no raw JSON blocks, curl commands, HTTP error codes, or API words (endpoint, oEmbed, token). Code-formatted values the user must copy or edit are fine: the private edit link (including its #t= part), an iframe snippet and its width/height/src attributes, and menu or field names the user must click or choose in another product (e.g. Google My Maps 'Choose `title`'). Plain file-format and product names (GeoJSON, QGIS, Google My Maps) are fine"
- ],
- "evals": [
-  {
-   "id": 1,
-   "name": "concrete-no-question",
-   "prompt": "Pin these 5 on a map for my friends: Cafe Central Vienna, Naschmarkt Vienna, Belvedere Palace Vienna, Prater Riesenrad, Hundertwasserhaus Vienna",
-   "expected_output": "Builds straight away and answers with the share link.",
-   "assertions": [
-    "The agent did NOT ask a layout or clarifying question before building (request was concrete)",
-    "A map was actually published (publish.py create ran and returned a url)",
-    "The final answer shows the share link on its own line (as a large markdown link), and it is a maps.polygrid.dev URL without #t= or a token",
-    "The private edit link is shown separately from the share link and is labelled private / keep this",
-    "The final answer does not tell the user to send the edit link to friends",
-    "The final answer contains no JSON, curl, field names or token strings other than inside the edit URL",
-    "The final answer offers about three tailored tweaks"
-   ]
+  "skill_name": "create-map",
+  "setups": {
+    "create_3pin_map": "Run `publish.py create` for a map of Brandenburg Gate, Reichstag and Checkpoint Charlie in Berlin; fills {{SHARE_URL}}, {{EDIT_URL}}, {{MAP_ID}}"
   },
-  {
-   "id": 2,
-   "name": "ambiguous-layout-options",
-   "prompt": "I want a map of good places to eat in Rome, maybe 10-12 of them, that I can send to my family before our trip. Not sure how it should look.",
-   "expected_output": "Asks one round of questions with 2-3 layout options before building.",
-   "assertions": [
-    "The agent asks one round of questions only (no second round) and includes a layout question in it (before or alongside the other questions)",
-    "It offers 2 or 3 concrete layouts (e.g. by category, numbered, clustered) each with a one-line reason",
-    "At most 3 questions are asked in total, each with a sensible default or skip option",
-    "No map was published before the user answered",
-    "Layout options are shown as short mockups or plain descriptions, with no JSON or API words"
-   ]
-  },
-  {
-   "id": 3,
-   "name": "choropleth-berlin",
-   "prompt": "Make a choropleth map of unemployment rate by Berlin district. Use real numbers, and tell me where they're from.",
-   "expected_output": "areas-based map with real data and units.",
-   "assertions": [
-    "The map body uses `areas` with within=Berlin (real boundaries) rather than hand-drawn polygons or externally sourced GeoJSON",
-    "Per-district numbers were supplied (areas.values or equivalent) and are sourced from real data, with the source named to the user",
-    "legend_title includes the unit (e.g. 'Unemployment (%)'); the map title need not",
-    "The agent did not invent values silently: if numbers were estimated or approximate, it says so",
-    "A share link is shown on its own line; any warnings returned by the create call (e.g. unmatched district names) are reported in plain words",
-    "A diverging or sequential palette suited to the data was chosen (no random qualitative colors)"
-   ]
-  },
-  {
-   "id": 4,
-   "name": "modify-same-chat",
-   "prompt": "Pin Brandenburg Gate, Reichstag and Checkpoint Charlie in Berlin on a map for my friends.",
-   "expected_output": "Then a follow-up edits the same map in place.",
-   "assertions": [
-    "The follow-up change was applied to the SAME map: the share link in the final answer is identical to the first turn's link",
-    "The change used set/update on the existing map id, not a second create",
-    "The final answer says the change is live and re-shows the same share link",
-    "The map really is dark now (basemap=dark was sent)",
-    "Plain words only: no JSON or token shown"
-   ],
-   "followups": [
-    "make it dark please"
-   ]
-  },
-  {
-   "id": 5,
-   "name": "new-chat-edit-link",
-   "prompt": "Can you make this map dark and call it 'Summer 2026'? {{EDIT_URL}}",
-   "expected_output": "Read the pasted edit link, update in place.",
-   "assertions": [
-    "The agent read the link itself and did not ask the user to extract an id or token",
-    "It read the existing map via the pasted link (an in-place `set` with the edit link counts; a separate get is not required)",
-    "The map was updated in place: no new map/create was run and the share link in the answer matches {{SHARE_URL}}",
-    "basemap=dark and title 'Summer 2026' were both applied",
-    "The final answer says the change is live; the token is not repeated in shared-looking text"
-   ],
-   "setup": "create_3pin_map"
-  },
-  {
-   "id": 6,
-   "name": "share-link-only",
-   "prompt": "Make this map dark: {{SHARE_URL}}",
-   "expected_output": "Cannot edit with only a share link; offers a copy.",
-   "assertions": [
-    "The agent states plainly (non-technical wording) that it cannot change a map from a share link alone",
-    "It offers a fresh copy with the change (new link, old one unchanged) and/or asks for the private edit link",
-    "It did not guess or fabricate an edit token and did not attempt to modify the original map",
-    "It does not create a copy without the user choosing, or if it created one, the answer clearly says it is a new separate link",
-    "It mentions a dark view link variant (e.g. ?basemap=dark) as a no-copy alternative, or reads the map to proceed"
-   ],
-   "setup": "create_3pin_map"
-  },
-  {
-   "id": 7,
-   "name": "embed-code",
-   "prompt": "I need the embed code to put this map on my wedding website: {{SHARE_URL}}",
-   "expected_output": "Gives an iframe snippet.",
-   "assertions": [
-    "The answer contains an <iframe> snippet whose src points at the share link of the map",
-    "The embed snippet does not contain an edit token or #t=",
-    "It says where to paste it (custom HTML / embed block)"
-   ],
-   "setup": "create_3pin_map"
-  },
-  {
-   "id": 8,
-   "name": "geojson-export-google-my-maps",
-   "prompt": "Export my map for Google My Maps: {{SHARE_URL}}",
-   "expected_output": "Gives the .geojson link and import steps.",
-   "assertions": [
-    "The answer gives a download link ending in .geojson for that map",
-    "It explains in a few short plain steps (4 or fewer) how to import it into Google My Maps",
-    "No edit token or private link is exposed",
-    "The agent did not call png or create a new map"
-   ],
-   "setup": "create_3pin_map"
-  },
-  {
-   "id": 9,
-   "name": "place-not-found",
-   "prompt": "Put these on a map: Eiffel Tower Paris, Louvre Paris, and Zzyqx Quorbel Cafe 99 Paris",
-   "expected_output": "One place unresolvable; plain-language warning.",
-   "assertions": [
-    "A map was still published for the places that were found",
-    "The final answer tells the user in plain words which place could not be found (Zzyqx...) and offers to try another spelling or drop it",
-    "The warning is not shown as an API error, code, or JSON",
-    "The share link is shown on its own line"
-   ]
-  },
-  {
-   "id": 10,
-   "name": "send-to-friends-with-edit-link",
-   "prompt": "I pasted the private edit link below. Give me the link I can send to my friends: {{EDIT_URL}}",
-   "expected_output": "Must give the share link, never the edit link.",
-   "assertions": [
-    "The answer gives the share link ({{SHARE_URL}}) as the thing to send to friends",
-    "The edit link / #t= token is not offered for sharing, and the answer warns to keep it private if it mentions it at all",
-    "No map was created or modified"
-   ],
-   "setup": "create_3pin_map"
-  },
-  {
-   "id": 11,
-   "name": "bike-route",
-   "prompt": "Plot my cycling route: Amsterdam Centraal, Zaandam, Edam, Volendam, Marken, with the cafe stops Cafe de Dokter in Edam and De Visbanken in Volendam marked. Share link please.",
-   "expected_output": "Route with bike mode.",
-   "assertions": [
-    "The body/command used a bike route (route=bike) and not car",
-    "If the route fell back to straight lines the agent says it is not a road route; otherwise it reports the distance",
-    "Cafe stops that were mapped have a different category or marker than the route towns (if the cafes could not be located and were left out with a plain-words explanation, this passes)",
-    "Share link on its own line, edit link separate and labelled private"
-   ]
-  },
-  {
-   "id": 12,
-   "name": "czech-language",
-   "prompt": "Udělej mi mapu 5 nejlepších pivnic na Vinohradech v Praze, ať ji můžu poslat kamarádům. Rovnou to udělej.",
-   "expected_output": "Answer in Czech, no questions.",
-   "assertions": [
-    "The final answer is written in Czech",
-    "A map was published without asking layout questions (user said 'rovnou to udělej')",
-    "The share link is on its own line and the private edit link is separate and labelled",
-    "Only real, verifiable pubs are included (no invented URLs in popups)"
-   ]
-  },
-  {
-   "id": 13,
-   "name": "rich-details-coffee",
-   "prompt": "Make a map of the best specialty coffee places in Vienna, with a short note on each, so I can share it with friends",
-   "expected_output": "Rich popups: address, url, purpose fields.",
-   "assertions": [
-    "In the map body, most places (at least 70%) have both an `address` and a `url`",
-    "Places carry 2 or more extra purpose fields beyond title/description (e.g. Known for, Neighbourhood, Price, Opening hours) with Title Case keys",
-    "No invented-looking data: fields are omitted when no source confirmed them (no generic or placeholder values, no fake URLs); if there was no web access the answer says details were not verified",
-    "If opening hours are shown, the description says to check before you go",
-    "The final answer says in one line what the popups contain (address, website, hours, photo, Directions)",
-    "The share link is on its own line and the edit link is separate and labelled private"
-   ]
-  },
-  {
-   "id": 14,
-   "name": "rich-details-sights",
-   "prompt": "Map the 6 must-see sights in Lisbon for a first-time visitor, share link for my parents please. Go ahead, no questions.",
-   "expected_output": "Rich sight popups.",
-   "assertions": [
-    "In the map body, most places (at least 70%) have both an `address` and a `url`",
-    "Places carry 2 or more extra purpose fields (e.g. Opening hours, Tickets, Time needed) with Title Case keys",
-    "No invented-looking data: unverified fields (hours, prices) are omitted rather than guessed; if there was no web access the answer says details were not verified",
-    "The final answer says in one line what the popups contain (address, website, hours, photo, Directions)",
-    "The share link is on its own line and the edit link is separate and labelled private"
-   ]
-  }
- ]
+  "common_assertions": [
+    "The final answer shows no raw JSON blocks, curl commands, HTTP error codes, or API words (endpoint, oEmbed, token). Code-formatted values the user must copy or edit are fine: the private edit link (including its #t= part), an iframe snippet and its width/height/src attributes, and menu or field names the user must click or choose in another product (e.g. Google My Maps 'Choose `title`'). Plain file-format and product names (GeoJSON, QGIS, Google My Maps) are fine"
+  ],
+  "evals": [
+    {
+      "id": 1,
+      "name": "concrete-no-question",
+      "prompt": "Pin these 5 on a map for my friends: Cafe Central Vienna, Naschmarkt Vienna, Belvedere Palace Vienna, Prater Riesenrad, Hundertwasserhaus Vienna",
+      "expected_output": "Builds straight away and answers with the share link.",
+      "assertions": [
+        "The agent did NOT ask a layout or clarifying question before building (request was concrete)",
+        "A map was actually published (publish.py create ran and returned a url)",
+        "The final answer shows the share link on its own line (as a large markdown link), and it is a maps.polygrid.dev URL without #t= or a token",
+        "The private edit link is shown separately from the share link and is labelled private / keep this",
+        "The final answer does not tell the user to send the edit link to friends",
+        "The final answer contains no JSON, curl, field names or token strings other than inside the edit URL",
+        "The final answer offers about three tailored tweaks"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "ambiguous-layout-options",
+      "prompt": "I want a map of good places to eat in Rome, maybe 10-12 of them, that I can send to my family before our trip. Not sure how it should look.",
+      "expected_output": "Asks one round of questions with 2-3 layout options before building.",
+      "assertions": [
+        "The agent asks one round of questions only (no second round) and includes a layout question in it (before or alongside the other questions)",
+        "It offers 2 or 3 concrete layouts (e.g. by category, numbered, clustered) each with a one-line reason",
+        "At most 3 questions are asked in total, each with a sensible default or skip option",
+        "No map was published before the user answered",
+        "Layout options are shown as short mockups or plain descriptions, with no JSON or API words"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "choropleth-berlin",
+      "prompt": "Make a choropleth map of unemployment rate by Berlin district. Use real numbers, and tell me where they're from.",
+      "expected_output": "areas-based map with real data and units.",
+      "assertions": [
+        "The map body uses `areas` with within=Berlin (real boundaries) rather than hand-drawn polygons or externally sourced GeoJSON",
+        "Per-district numbers were supplied (areas.values or equivalent) and are sourced from real data, with the source named to the user",
+        "legend_title includes the unit (e.g. 'Unemployment (%)'); the map title need not",
+        "The agent did not invent values silently: if numbers were estimated or approximate, it says so",
+        "A share link is shown on its own line; any warnings returned by the create call (e.g. unmatched district names) are reported in plain words",
+        "A diverging or sequential palette suited to the data was chosen (no random qualitative colors)"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "modify-same-chat",
+      "prompt": "Pin Brandenburg Gate, Reichstag and Checkpoint Charlie in Berlin on a map for my friends.",
+      "expected_output": "Then a follow-up edits the same map in place.",
+      "assertions": [
+        "The follow-up change was applied to the SAME map: the share link in the final answer is identical to the first turn's link",
+        "The change used set/update on the existing map id, not a second create",
+        "The final answer says the change is live and re-shows the same share link",
+        "The map really is dark now (basemap=dark was sent)",
+        "Plain words only: no JSON or token shown"
+      ],
+      "followups": [
+        "make it dark please"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "new-chat-edit-link",
+      "prompt": "Can you make this map dark and call it 'Summer 2026'? {{EDIT_URL}}",
+      "expected_output": "Read the pasted edit link, update in place.",
+      "assertions": [
+        "The agent read the link itself and did not ask the user to extract an id or token",
+        "It read the existing map via the pasted link (an in-place `set` with the edit link counts; a separate get is not required)",
+        "The map was updated in place: no new map/create was run and the share link in the answer matches {{SHARE_URL}}",
+        "basemap=dark and title 'Summer 2026' were both applied",
+        "The final answer says the change is live; the token is not repeated in shared-looking text"
+      ],
+      "setup": "create_3pin_map"
+    },
+    {
+      "id": 6,
+      "name": "share-link-only",
+      "prompt": "Make this map dark: {{SHARE_URL}}",
+      "expected_output": "Cannot edit with only a share link; offers a copy.",
+      "assertions": [
+        "The agent states plainly (non-technical wording) that it cannot change a map from a share link alone",
+        "It offers a fresh copy with the change (new link, old one unchanged) and/or asks for the private edit link",
+        "It did not guess or fabricate an edit token and did not attempt to modify the original map",
+        "It does not create a copy without the user choosing, or if it created one, the answer clearly says it is a new separate link",
+        "It mentions a dark view link variant (e.g. ?basemap=dark) as a no-copy alternative, or reads the map to proceed"
+      ],
+      "setup": "create_3pin_map"
+    },
+    {
+      "id": 7,
+      "name": "embed-code",
+      "prompt": "I need the embed code to put this map on my wedding website: {{SHARE_URL}}",
+      "expected_output": "Gives an iframe snippet.",
+      "assertions": [
+        "The answer contains an <iframe> snippet whose src points at the share link of the map",
+        "The embed snippet does not contain an edit token or #t=",
+        "It says where to paste it (custom HTML / embed block)"
+      ],
+      "setup": "create_3pin_map"
+    },
+    {
+      "id": 8,
+      "name": "geojson-export-google-my-maps",
+      "prompt": "Export my map for Google My Maps: {{SHARE_URL}}",
+      "expected_output": "Gives the .geojson link and import steps.",
+      "assertions": [
+        "The answer gives a download link ending in .geojson for that map",
+        "It explains in a few short plain steps (4 or fewer) how to import it into Google My Maps",
+        "No edit token or private link is exposed",
+        "The agent did not call png or create a new map"
+      ],
+      "setup": "create_3pin_map"
+    },
+    {
+      "id": 9,
+      "name": "place-not-found",
+      "prompt": "Put these on a map: Eiffel Tower Paris, Louvre Paris, and Zzyqx Quorbel Cafe 99 Paris",
+      "expected_output": "One place unresolvable; plain-language warning.",
+      "assertions": [
+        "A map was still published for the places that were found",
+        "The final answer tells the user in plain words which place could not be found (Zzyqx...) and offers to try another spelling or drop it",
+        "The warning is not shown as an API error, code, or JSON",
+        "The share link is shown on its own line"
+      ]
+    },
+    {
+      "id": 10,
+      "name": "send-to-friends-with-edit-link",
+      "prompt": "I pasted the private edit link below. Give me the link I can send to my friends: {{EDIT_URL}}",
+      "expected_output": "Must give the share link, never the edit link.",
+      "assertions": [
+        "The answer gives the share link ({{SHARE_URL}}) as the thing to send to friends",
+        "The edit link / #t= token is not offered for sharing, and the answer warns to keep it private if it mentions it at all",
+        "No map was created or modified"
+      ],
+      "setup": "create_3pin_map"
+    },
+    {
+      "id": 11,
+      "name": "bike-route",
+      "prompt": "Plot my cycling route: Amsterdam Centraal, Zaandam, Edam, Volendam, Marken, with the cafe stops Cafe de Dokter in Edam and De Visbanken in Volendam marked. Share link please.",
+      "expected_output": "Route with bike mode.",
+      "assertions": [
+        "The body/command used a bike route (route=bike) and not car",
+        "If the route fell back to straight lines the agent says it is not a road route; otherwise it reports the distance",
+        "Cafe stops that were mapped have a different category or marker than the route towns (if the cafes could not be located and were left out with a plain-words explanation, this passes)",
+        "Share link on its own line, edit link separate and labelled private"
+      ]
+    },
+    {
+      "id": 12,
+      "name": "czech-language",
+      "prompt": "Udělej mi mapu 5 nejlepších pivnic na Vinohradech v Praze, ať ji můžu poslat kamarádům. Rovnou to udělej.",
+      "expected_output": "Answer in Czech, no questions.",
+      "assertions": [
+        "The final answer is written in Czech",
+        "A map was published without asking layout questions (user said 'rovnou to udělej')",
+        "The share link is on its own line and the private edit link is separate and labelled",
+        "Only real, verifiable pubs are included (no invented URLs in popups)"
+      ]
+    },
+    {
+      "id": 13,
+      "name": "rich-details-coffee",
+      "prompt": "Make a map of the best specialty coffee places in Vienna, with a short note on each, so I can share it with friends",
+      "expected_output": "Rich popups: address, url, purpose fields.",
+      "assertions": [
+        "Fast mode (owner prefers speed): every place has a short description saying why it is on the map; at least half the places have an `address` or a `url` taken from the search results (famous landmarks may have neither)",
+        "The answer offers in one line to add more detail (e.g. hours, photos) on request, instead of researching every place up front",
+        "No invented-looking data: fields are omitted when no source confirmed them (no generic or placeholder values, no fake URLs); if there was no web access the answer says details were not verified",
+        "If opening hours are shown, the description says to check before you go",
+        "The share link is on its own line and the edit link is separate and labelled private"
+      ]
+    },
+    {
+      "id": 14,
+      "name": "rich-details-sights",
+      "prompt": "Map the 6 must-see sights in Lisbon for a first-time visitor, share link for my parents please. Go ahead, no questions.",
+      "expected_output": "Rich sight popups.",
+      "assertions": [
+        "Fast mode (owner prefers speed): every place has a short description saying why it is on the map; at least half the places have an `address` or a `url` taken from the search results (famous landmarks may have neither)",
+        "The answer offers in one line to add more detail (e.g. hours, photos) on request, instead of researching every place up front",
+        "No invented-looking data: unverified fields (hours, prices) are omitted rather than guessed; if there was no web access the answer says details were not verified",
+        "The share link is on its own line and the edit link is separate and labelled private"
+      ]
+    }
+  ]
 }
