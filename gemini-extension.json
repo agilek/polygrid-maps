@@ -1,6 +1,6 @@
 {
   "name": "polygrid-maps",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Turn places, trips, routes and data per area into a live, shareable, editable web map link.",
   "contextFileName": "GEMINI.md",
   "mcpServers": {
