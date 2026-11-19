@@ -23,7 +23,7 @@ Ask ONE round of questions, layout first:
 - If the user has no places yet, research real ones first (web search if available), then ask.
 
 ### 3. Build the map
-Write the body to a file (e.g. `map-body.json` in a temp or scratch folder, not the user's project). Use named `places` (geocoded for you) in preference to guessed coordinates; add city and country to each name. If you do use coordinates, they are `[longitude, latitude]`.
+Write the body to a file (e.g. `map-body.json` in a temp or scratch folder, not the user's project). Use named `places` (geocoded for you) in preference to guessed coordinates; add city and country to each name. For small venues (cafes, shops, bars) put the street address in `q` when you know it, since names alone can match the wrong spot. If a place still lands in the wrong spot, fix it with an address or leave it out, and tell the user in one plain sentence; never mention lookups, downloads or other internals. If you do use coordinates, they are `[longitude, latitude]`.
 - Every place gets: `title`, a one-line `description` saying why it is on the map, a `category` (when there are several kinds), an emoji `marker-symbol` matching the category, and `url` / `image` (https only) when you actually know a good link or photo. Never invent URLs.
 - Set a `title` that says what and where ("Best coffee in Lisbon"), and a one-sentence `description`.
 - Do not set `"image"`: the share link gets its own preview picture when it is pasted into a chat app, and preview renders are limited.
@@ -42,7 +42,7 @@ python3 scripts/publish.py create body.json
 ```
 It prints the result. Keep from it (for yourself): `url`, `edit_token`, `edit_url`, `id`, `warnings`, `route`. Also save the body file: it lets you recreate the map later.
 - If it prints a `fallback_url` instead (sandbox cannot reach the API), tell the user: "I can't publish from here, but this link opens your map ready to go. Click it, check it, then press **Publish map**." Show the link prominently. After publishing, that page shows their share link and their private edit link; ask them to paste the edit link back here if they want you to change the map later. Suggest enabling network access for maps.polygrid.dev (Settings > Capabilities > Code execution) to get real share links next time.
-- If it exits with an API error, read its `hint`, fix the body, retry once. If a place could not be found, ask for another spelling or drop it.
+- If it exits with an API error, read its `hint`, fix the body, retry once. If a place could not be found, offer another spelling or address, or to leave it out.
 
 ### 5. Answer visually and briefly
 In this order:
@@ -65,7 +65,7 @@ What people usually need, and what to give them:
 - **A link to share:** the share link (`links ID`). It never contains the edit token.
 - **Just a look in another style:** a view link such as `?basemap=dark` on the share link. Nothing is changed for others. Also `?marker=dot`, `?labels=1`, `?cluster=1`.
 - **Change texts, colors, icons or photos themselves, in the browser:** the private edit link. Explain it opens a simple editor (names, texts, links, photos, colors, icons, removing places). Adding places or changing layout, style or routes is done by you in chat.
-- **Put it on a website, blog or Notion:** give the embed snippet from `links ID` and say where to paste it (a "custom HTML" / "embed" block). In Notion, a plain "/embed" block with the share link works too.
+- **Put it on a website, blog or Notion:** give the embed code from `links ID` (call it "embed code", never oEmbed or endpoint) and say where to paste it (a "custom HTML" / "embed" block). In Notion, a plain "/embed" block with the share link works too.
 - **Open it in QGIS, Google My Maps, Mapbox, a spreadsheet:** the download link ending in `.geojson`. Say what to do with it ("in Google My Maps choose Import and upload this file").
 - **A picture (slides, printing, a document):** only when asked, `python3 scripts/publish.py png ID map.png`, then tell them where the file is. Pictures are limited, do it at most once per request and never in a loop.
 - **Open it in the browser** (when you run on their computer and they want it): `open URL` on macOS, `xdg-open URL` on Linux, `start URL` on Windows. Do not do it unasked.
