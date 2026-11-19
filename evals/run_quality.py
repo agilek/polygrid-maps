@@ -107,9 +107,14 @@ TRANSCRIPT
 Reply with ONLY a JSON array, one object per assertion in order: {{"text": "<assertion>", "passed": true|false, "evidence": "<short quote or reason>"}}"""
     p = subprocess.run(["claude", "-p", "--model", model, "--setting-sources", "project", "--output-format", "text"],
                        input=prompt, env=clean_env(), capture_output=True, text=True, timeout=300)
-    m = re.search(r"\[.*\]", p.stdout, re.S)
     try:
-        return json.loads(m.group(0))
+        dec, out = json.JSONDecoder(), p.stdout
+        for m in re.finditer(r"\[\s*\{", out):
+            try:
+                return dec.raw_decode(out[m.start():])[0]
+            except ValueError:
+                continue
+        raise ValueError("no json")
     except Exception:
         return [{"text": a, "passed": False, "evidence": "grader output unparseable: " + p.stdout[:200]} for a in assertions]
 

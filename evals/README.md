@@ -25,12 +25,14 @@ python3 plugins/evals/run_quality.py --out <same dir> --regrade     # re-grade s
 ```
 Output per scenario: `transcript.txt`, `grading.json` (text / passed / evidence). The grader is an LLM and a little noisy; read the evidence before acting on a fail.
 
-## Latest scores (2026-11-19, sonnet, skill commit d15b23b + new description)
-| Suite | Before | After |
-|---|---|---|
-| Trigger, train (36) | 34/36 | 36/36 |
-| Trigger, held-out (22) | 20/22 | 22/22 |
-| Trigger, all 58, 3 runs each | recall 26/29, precision 29/29 | 58/58 (recall 100%, precision 100%) |
-| Quality (67 assertions, 12 scenarios) | | 64/67 |
+## Latest scores (2026-11-19, sonnet, skill commit 8147146 on main, MCP disabled in runs: Python path)
+| Suite | Result |
+|---|---|
+| Trigger, all 58 queries x 3 runs | 58/58 (recall 100%, precision 100%); old description was recall 26/29 |
+| Trigger, held-out 22 (optimisation split) | 20/22 -> 22/22 |
+| Quality, 12 scenarios | 65/67 assertions, 12 maps created, no png |
 
-Open quality findings: embed answer says "oEmbed endpoint"; bike-route answer talks about a "data download" and the two cafe pins were geocoded to the wrong spots (small cafes geocode badly); place-not-found offers a spelling retry but not dropping the place (grader flagged, minor).
+Open quality findings (minor):
+- Choropleth: legend_title carries the unit ("%") but the map title does not (assertion asks for both; arguably fine).
+- Czech pubs: one pub address was filled in "from memory" and not verified by search. Suggest: only put addresses/URLs in popups that were seen in a source.
+- LLM grader is noisy on borderline wording ("embed code", "#t=" in the edit URL); read the evidence before acting.
