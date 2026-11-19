@@ -118,10 +118,11 @@ def summarize(turns):  # -> text, creates, pngs, info
     # created maps = distinct ids in tool results that carry an edit token/url (only create responses do)
     created = []
     for _, t in info["results"]:
-        if "edit_url" in t or "edit_token" in t:
-            for m in re.finditer(r"/m/([A-Za-z0-9]{6,})", t):
-                if m.group(1) not in created:
-                    created.append(m.group(1))
+        # only create responses carry a real "edit_token": "..." value (update responses just mention it in agent_note)
+        if re.search(r'"edit_token"\s*:\s*"', t):
+            m = re.search(r'"id"\s*:\s*"([A-Za-z0-9]{6,})"', t) or re.search(r"/m/([A-Za-z0-9]{6,})", t)
+            if m and m.group(1) not in created:
+                created.append(m.group(1))
     info["created_ids"] = created
     info["created_tokens"] = sorted({m for _, t in info["results"] for m in re.findall(r'"edit_token"\s*:\s*"([^"]+)"', t)})
     info["create_calls"] = creates
