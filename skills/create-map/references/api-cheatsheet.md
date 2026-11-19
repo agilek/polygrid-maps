@@ -19,7 +19,7 @@ legacy: publish.py body.json [--id ID --token T]; publish.py --get ID
 - `POST /v1/maps` body -> create. `PUT /v1/maps/{id}` with `Authorization: Bearer TOKEN` -> replace. `GET /v1/maps/{id}` -> editable body (no `areas` field: shapes are already resolved; includes `image`, which `set` drops so no render is triggered).
 - Files: `/m/{id}.geojson`, `/m/{id}.png`, `/oembed?url=`.
 - View params: `?basemap=`, `marker=dot|pin|circle|none`, `color=hex`, `cluster=1`, `labels=1`, `embed=1`.
-- Errors: 400 bad input (read `hint`), 401/403 token, 404 unknown or expired, 413 over 2 MB, 429 rate limit (`Retry-After`), 503 preview temporarily unavailable.
+- Errors: 400 bad input (read `hint`), 401/403 token, 404 unknown or expired, 413 over 2 MB, 429 rate limit (`Retry-After`), 503 preview temporarily unavailable (browsers/chat get a placeholder image instead). Create/update output has `preview_markdown`: start the reply with it where images show.
 - Limits: 50 places, 60 creates/min/IP, maps expire after 30 days without views, cannot be deleted.
 
 ## MCP equivalents

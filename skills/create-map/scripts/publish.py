@@ -58,9 +58,9 @@ def parse_value(key, raw):
         return raw
 
 
-def request(method, path, body=None, token=None, raw=False):
+def request(method, path, body=None, token=None, raw=False, accept=None):
     data = json.dumps(body).encode() if body is not None else None
-    h = {"User-Agent": UA, "Accept": "*/*" if raw else "application/json"}
+    h = {"User-Agent": UA, "Accept": accept or ("*/*" if raw else "application/json")}
     if data:
         h["Content-Type"] = "application/json"
     if token:
@@ -370,7 +370,7 @@ def cmd_links(ref):
 
 def cmd_png(ref, outfile):
     mid, _ = parse_ref(ref)
-    status, blob = request("GET", f"/m/{mid}.png", raw=True)
+    status, blob = request("GET", f"/m/{mid}.png", raw=True, accept="image/png, application/json;q=0.5")  # JSON in Accept: 503 instead of the placeholder card
     if status != 200 or not isinstance(blob, bytes):
         print(json.dumps({"error": f"preview not available (HTTP {status}); try again in a minute"}))
         sys.exit(1)

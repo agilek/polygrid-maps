@@ -50,6 +50,7 @@ It prints the result. Keep from it (for yourself): `url`, `edit_token`, `edit_ur
 
 ### 5. Answer visually and briefly
 In this order:
+0. The thumbnail, first line of the reply: `preview_markdown` from the publish output (or build `[![title](https://maps.polygrid.dev/m/ID.png)](URL)`). Skip it in terminal agents that cannot show images (Claude Code CLI, Codex CLI, Gemini CLI) and with the fallback publish link (no map yet). In claude.ai, Claude Desktop and Cowork outside images may not show: keep the line (it falls back to a linked title) but do not mention the picture.
 1. The share link, large and on its own line: `## [Open your map](URL)`.
 2. One line on the popups, e.g. "Each pin has the address, website, hours and a photo; tap Directions to get there" (mention only what you really filled in; say once if details could not be verified).
 3. One line: when they paste the link into WhatsApp, iMessage or Slack, it shows a preview picture of the map.
