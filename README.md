@@ -83,7 +83,7 @@ Remote URL, streamable HTTP, no authentication: `https://maps.polygrid.dev/mcp`.
 | --- | --- | --- |
 | Windsurf | `~/.codeium/windsurf/mcp_config.json` | `{ "mcpServers": { "polygrid-maps": { "serverUrl": "https://maps.polygrid.dev/mcp" } } }` |
 | Zed | `settings.json` | `{ "context_servers": { "polygrid-maps": { "url": "https://maps.polygrid.dev/mcp" } } }` |
-| OpenCode | `opencode.json` | `{ "mcp": { "servers": { "polygrid-maps": { "type": "remote", "url": "https://maps.polygrid.dev/mcp" } } } }` |
+| OpenCode | `opencode.json` | `{ "mcp": { "polygrid-maps": { "type": "remote", "url": "https://maps.polygrid.dev/mcp" } } }` |
 | Cline | `cline_mcp_settings.json` | `{ "mcpServers": { "polygrid-maps": { "type": "streamableHttp", "url": "https://maps.polygrid.dev/mcp" } } }` |
 | Generic JSON | `mcp.json` | `{ "mcpServers": { "polygrid-maps": { "type": "http", "url": "https://maps.polygrid.dev/mcp" } } }` |
 
