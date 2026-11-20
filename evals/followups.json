@@ -10,7 +10,7 @@
   {
    "id": 101,
    "name": "barcelona-add-routes",
-   "prompt": "Make a map of places to see in Barcelona with kids in 2 days",
+   "prompt": "Make a map of places to see in Barcelona with kids in 2 days. Just pins for now, no routes.",
    "expected_output": "Follow-up 'add routes' updates the SAME map in place: one map, one route per day, same link.",
    "followups": [
     "add me routes for barcelona map"

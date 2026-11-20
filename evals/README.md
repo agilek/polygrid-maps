@@ -60,6 +60,9 @@ npm run evals -- --regrade         # re-grade saved transcripts (no new maps, no
 ## Targeted rerun after plugin 0.0.8 (supersedes the rows below for these items)
 Trigger misses 4/4 fixed, 10/10 negatives clean; 13 (fast-mode assertions): 6/6 on first grade, 5/6 on regrade (a guessed address); 14: 2/5 (no search for landmarks so no address/url, no "add more detail" offer, edit link inline); 106 skill 10/10; 104 docs-only 9/9. `--only X` runs now write `results/latest-X.md` so they do not overwrite the full summary.
 
+## Plugin 0.0.9 run (5-line answer template): quality 74/78 first grade (14 scenarios, 13 creates), followups 101 and 106 skill 10/10
+No regression from the shorter answer. Remaining: 9 (grader wants "or drop it" which the assertion never asked for), 10 (answer says "secret edit token" to the user: skill wording issue, say "private part of the link"), 12/13 (grader noise on verification), 14 (landmarks skip search by design: no address/url). Harness fixes: scenario 1 now accepts 2-3 tweaks; 101 prompt now says "just pins, no routes" because the skill adds per-day routes by itself. Gotcha: agents write to fixed /tmp paths (`/tmp/bcn/body.json`), so stale files from an earlier run can be published instead (cost a stray map in 101); `rm -rf /tmp/bcn /tmp/bcn2` before rerunning.
+
 ## Latest scores (2026-11-20, sonnet, plugin 0.0.7 on production)
 | Suite | Result |
 |---|---|

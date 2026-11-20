@@ -20,12 +20,12 @@
 | 6 | share-link-only | 6/6 (1c) |
 | 7 | embed-code | 4/4 (1c) |
 | 8 | geojson-export-google-my-maps | 5/5 (1c) |
-| 9 | place-not-found | 5/5 (1c) |
-| 10 | send-to-friends-with-edit-link | 4/4 (1c) |
+| 9 | place-not-found | 4/5 (1c) |
+| 10 | send-to-friends-with-edit-link | 3/4 (1c) |
 | 11 | bike-route | 5/5 (1c) |
 | 12 | czech-language | 4/5 (1c) |
-| 13 | rich-details-coffee | 5/6 (1c) |
-| 14 | rich-details-sights | 2/5 (1c) |
+| 13 | rich-details-coffee | 4/6 (1c) |
+| 14 | rich-details-sights | 4/5 (1c) |
 
 ## Followups
 
@@ -40,16 +40,19 @@
 
 ## Failed assertions
 
+- 9 place-not-found [skill] (transcript: results/raw/quality/eval-09-place-not-found.skill)
+  - The final answer tells the user in plain words which place could not be found (Zzyqx...) and offers to try ano -- Says: "I couldn't find \"Zzyqx Quorbel Cafe 99\", so it isn't on the map. If you send me its street address or the spelling you have, I'll add it." This names t
+- 10 send-to-friends-with-edit-link [skill] (transcript: results/raw/quality/eval-10-send-to-friends-with-edit-link.skill)
+  - The final answer shows no raw JSON blocks, curl commands, HTTP error codes, or API words (endpoint, oEmbed, to -- The answer says "That part is the secret edit token", which uses the API word "token". It also code-formats `/edit` and `#t=…`, though the `#t=` part is allowed
 - 12 czech-language [skill] (transcript: results/raw/quality/eval-12-czech-language.skill)
-  - Only real, verifiable pubs are included (no invented URLs in popups) -- The popups contain no URLs. But 'Malý pivo' was geocoded from a street address the search results never showed, and the claim 'hodnocení 4.9 na Firmy.cz' is not
+  - Only real, verifiable pubs are included (no invented URLs in popups) -- Only the Vinohradský pivovar popup has a URL, and it comes from a search result. The transcript doesn't verify the other four places. The assistant admits it fo
 - 13 rich-details-coffee [skill] (transcript: results/raw/quality/eval-13-rich-details-coffee.skill)
-  - No invented-looking data: fields are omitted when no source confirmed them; if there was no web access the ans -- Only one search is visible, and its results are truncated. The Viennese Coffee Roastery pin was moved to a guessed address ('Praterstraße 80, which is my guess'
+  - Fast mode: every place has a short description; at least half have address or url from search results -- All 9 places have descriptions, but addresses were typed from memory/not clearly from search results; Jonas Reindl (Währinger) has no address. Also no evidence 
+  - No invented-looking data; omitted when unconfirmed; say if not verified -- Addresses like Kaffemik Zollergasse 5, Akrap Königsklostergasse 7, Café Exchange Georg-Coch-Platz 2 appear without visible source confirmation; descriptions lik
 - 14 rich-details-sights [skill] (transcript: results/raw/quality/eval-14-rich-details-sights.skill)
-  - Fast mode (owner prefers speed): every place has a short description saying why it is on the map; at least hal -- All six places have descriptions, but the answer says 'I added no addresses or websites' and no web search was done, so none of the places has an address or url
-  - The answer offers in one line to add more detail (e.g. hours, photos) on request, instead of researching every -- The answer lists possible changes (route, restaurants, dark map) and other formats. It has no one-line offer to add more detail such as hours or photos.
-  - The share link is on its own line and the edit link is separate and labelled private -- The share link is on its own line in the heading. The edit link is in a paragraph, after text: 'Keep it to yourself and don't send it to your parents: https://.
+  - Fast mode (owner prefers speed): every place has a short description saying why it is on the map; at least hal -- All six places have short descriptions, but none has an address or url. No search was done, and the answer says 'I left them out'. Half the places must have an 
 
 Map creates (incl. setup): 27; png calls: 0
 
-## Targeted rerun after plugin 0.0.8 (2026-11-20)
-Trigger: the 4 earlier misses now trigger (3/3, 3/3, 3/3, 2/3), 10 random negatives 0/3 (precision 100%). The Trigger section above is the pre-0.0.8 full run. Rows 13, 14, 104 (docs-only) and 106 (skill) above are from the 0.0.8 rerun transcripts, regraded with the fast-mode assertions. 12 flipped to a fail on regrade only through grader noise (earlier 5/5).
+## Plugin 0.0.9 run (2026-11-20, 5-line answer template; ~18 creates, no png)
+Quality rows above and followups 101/106 (skill) are from 0.0.9 transcripts, regraded. Trigger section is pre-0.0.8. First-grade quality total 74/78; regrade moves 12 and 13 by grader noise (13 was 6/6, now 4/6).
