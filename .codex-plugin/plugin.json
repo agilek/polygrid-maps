@@ -1,6 +1,6 @@
 {
   "name": "polygrid-maps",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Turn places, trips, routes and data per area into a live, shareable, editable web map link.",
   "author": { "name": "Polygrid", "url": "https://maps.polygrid.dev" },
   "homepage": "https://maps.polygrid.dev/docs/agents",
