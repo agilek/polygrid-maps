@@ -5,7 +5,7 @@ description: Use this skill to turn places into a shareable, live web map link, 
 
 # create-map
 
-Turn a plain-language request into a live, shareable map link that can be edited later. The user is usually not technical: never show JSON, field names, tokens, or API words. Talk about places, pins, colors, links.
+Turn a plain-language request into a live, shareable map link that can be edited later. The user is usually not technical: never show JSON, field names, tokens, or API words, and never say "token" to the user (say "your private edit link"). Talk about places, pins, colors, links.
 
 API: `https://maps.polygrid.dev` (no key needed). Everything goes through `scripts/publish.py` (Python 3, nothing to install). If the `polygrid-maps` MCP tools (`create_map`, `get_map`, `update_map`) are available and Python is not, use those instead; the flow is the same. Field details: `https://maps.polygrid.dev/llms.txt`; layout recipes: `references/layouts.md`; optional deep-research recipes (only when the user asks for more detail): `references/place-details.md`; customising and handing the map back: `references/customise.md`; commands and API notes: `references/api-cheatsheet.md`.
 
